@@ -1,4 +1,13 @@
 :root {
+  /* Colors */
   --background: #ffffff;
   --foreground: #171717;
+  --control-border: rgba(0, 0, 0, 0.23);
+
+  /* Breakpoints */
+  --bp-mobile: 30rem;
+  --bp-tablet: 45rem;
+  --bp-desktop: 60rem;
+  --bp-wide: 75rem;
+  --bp-ultra: 90rem;
 }

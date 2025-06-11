@@ -1,14 +1,36 @@
+'use client';
+
+import Header from '@/components/Header/Header';
 import { login, signup } from './actions';
+import { Button, TextField, ThemeProvider } from '@mui/material';
+import { theme } from '@/utils/muiThemes';
 
 export default function LoginPage() {
   return (
-    <form>
-      <label htmlFor="email">Email:</label>
-      <input id="email" name="email" type="email" required />
-      <label htmlFor="password">Password:</label>
-      <input id="password" name="password" type="password" required />
-      <button formAction={login}>Log in</button>
-      <button formAction={signup}>Sign up</button>
-    </form>
+    <main>
+      <Header />
+      <ThemeProvider theme={theme}>
+        <div className="utility-page">
+          <form className="login-form">
+            <TextField name="email" type="email" required label="Email">
+              Email
+            </TextField>
+            <TextField
+              name="password"
+              type="password"
+              required
+              label="Password">
+              Password
+            </TextField>
+            <Button type="submit" variant="contained" formAction={login}>
+              Log in
+            </Button>
+            <Button type="submit" variant="contained" formAction={signup}>
+              Sign up
+            </Button>
+          </form>
+        </div>
+      </ThemeProvider>
+    </main>
   );
 }
