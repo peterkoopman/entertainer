@@ -1,3 +1,8 @@
+@font-face {
+  font-family: 'MaterialIcons';
+  src: url(https://fonts.googleapis.com/icon?family=Material+Icons);
+}
+
 .card {
   max-width: 28rem;
   display: flex;
@@ -7,8 +12,7 @@
   padding: 2rem;
   gap: 1rem;
   margin: auto;
-  box-shadow:
-    hsla(220, 30%, 5%, 0.05) 0px 5px 15px 0px,
+  box-shadow: hsla(220, 30%, 5%, 0.05) 0px 5px 15px 0px,
     hsla(220, 25%, 10%, 0.05) 0px 15px 35px -5px;
 }
 

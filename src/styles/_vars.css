@@ -3,11 +3,12 @@
   --background: #ffffff;
   --foreground: #171717;
   --control-border: rgba(0, 0, 0, 0.23);
+  --light-blue: #e9f0f5;
 
   /* Breakpoints */
-  --bp-mobile: 30rem;
-  --bp-tablet: 45rem;
-  --bp-desktop: 60rem;
-  --bp-wide: 75rem;
-  --bp-ultra: 90rem;
+  --bp-mobile: 30rem; /* 480px */
+  --bp-tablet: 45rem; /* 720px */
+  --bp-desktop: 60rem; /* 960px */
+  --bp-wide: 75rem; /* 1200px */
+  --bp-ultra: 90rem; /* 1440px */
 }
