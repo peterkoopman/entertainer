@@ -1,0 +1,18 @@
+.user {
+  margin-top: auto;
+}
+
+.userDisplay {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.userText {
+  font-size: 0.9rem;
+}
+
+.userEmail {
+  font-size: 0.8rem;
+}

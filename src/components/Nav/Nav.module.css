@@ -1,0 +1,19 @@
+.nav {
+}
+
+.nav ul {
+  list-style-type: none;
+}
+
+.nav li {
+  margin: 1em 0;
+}
+
+.nav li a {
+  font-size: 1rem;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+}

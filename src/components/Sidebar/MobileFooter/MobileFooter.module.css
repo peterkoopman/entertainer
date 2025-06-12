@@ -1,0 +1,17 @@
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--light-blue);
+  padding: 1rem;
+}
+
+@media screen and (min-width: 45rem) {
+  .footer {
+    display: none;
+  }
+}

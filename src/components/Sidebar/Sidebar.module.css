@@ -1,0 +1,19 @@
+.sidebar {
+  display: none;
+}
+
+.header h1 {
+  font-size: 1.5rem;
+}
+
+@media screen and (min-width: 45rem) {
+  .sidebar {
+    max-width: 18rem;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding: 1rem;
+    background-color: var(--light-blue);
+  }
+}
