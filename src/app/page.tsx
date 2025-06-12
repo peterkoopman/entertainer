@@ -1,12 +1,6 @@
-import Header from '@/components/Header/Header';
-import styles from './page.module.css';
+import { redirect } from 'next/navigation';
 
 export default function Home() {
-  return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Header />
-      </main>
-    </div>
-  );
+  // TODO: determine whether user is logged in. Redirect to dsahboard or login page
+  redirect('/dashboard');
 }
