@@ -1,6 +1,5 @@
 'use client';
 
-import Header from '@/components/Header/Header';
 import { login, signup } from './actions';
 import { Button, TextField, ThemeProvider } from '@mui/material';
 import { theme } from '@/utils/muiThemes';
@@ -8,9 +7,9 @@ import { theme } from '@/utils/muiThemes';
 export default function LoginPage() {
   return (
     <main>
-      <Header />
       <ThemeProvider theme={theme}>
         <div className="utility-page">
+          <h2>Log in or Sign up</h2>
           <form className="login-form">
             <TextField name="email" type="email" required label="Email">
               Email
