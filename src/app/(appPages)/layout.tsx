@@ -1,6 +1,6 @@
 import Sidebar from '@/components/Sidebar/Sidebar';
 import './appPages.css';
-import MobileFooter from '@/components/Sidebar/MobileFooter/MobileFooter';
+import MobileFooter from '@/components/MobileFooter/MobileFooter';
 
 export default function PageLayout({
   children,
