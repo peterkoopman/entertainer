@@ -10,11 +10,11 @@ const MobileFooter = () => {
       <UserAvatar />
       <div className={style.homeLink}>
         <Link href="/dashboard">
-          <Icon>home</Icon>
+          <div className="material-symbols-outlined">home</div>
         </Link>
       </div>
       <div className={style.menu}>
-        <Icon>menu</Icon>
+        <div className="material-symbols-outlined">menu</div>
       </div>
     </footer>
   );
