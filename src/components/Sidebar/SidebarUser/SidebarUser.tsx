@@ -1,3 +1,5 @@
+'use client';
+
 import UserAvatar from '@/components/UserAvatar/UserAvatar';
 import SidebarUserPopup from '../SidebarUserPopup/SidebarUserPopup';
 import style from './SidebarUser.module.css';

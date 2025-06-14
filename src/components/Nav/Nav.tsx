@@ -1,3 +1,5 @@
+'use client';
+
 import style from './Nav.module.css';
 
 const Nav = () => {

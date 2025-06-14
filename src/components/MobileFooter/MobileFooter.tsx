@@ -1,7 +1,8 @@
+'use client';
+
 import UserAvatar from '@/components/UserAvatar/UserAvatar';
 import style from './MobileFooter.module.css';
 import Link from 'next/link';
-import { Icon } from '@mui/material';
 
 // TODO: Check out the MUI Avatar component for this
 const MobileFooter = () => {

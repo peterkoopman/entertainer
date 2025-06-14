@@ -1,3 +1,5 @@
+'use client';
+
 import style from './SidebarUserPopup.module.css';
 
 const SidebarUserPopup = () => {
