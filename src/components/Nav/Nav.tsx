@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import style from './Nav.module.css';
 
 const Nav = () => {
@@ -14,10 +15,10 @@ const Nav = () => {
       <ul>
         {navItems.map((item, index) => (
           <li key={index}>
-            <a href={item.path}>
+            <Link href={item.path} title={item.label}>
               <div className="material-symbols-outlined">{item.icon}</div>
               {item.label}
-            </a>
+            </Link>
           </li>
         ))}
       </ul>
