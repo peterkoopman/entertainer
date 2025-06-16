@@ -1,6 +1,7 @@
 .popup {
   position: fixed;
   bottom: 75px;
+  left: 0.7rem;
   opacity: 0;
   transform: translateY(1rem);
   transition: opacity 0.3s ease-out,
@@ -46,4 +47,10 @@
 .icon {
   font-size: 24px;
   font-weight: 100;
+}
+
+@media screen and (min-width: 45rem) {
+  .popup {
+    left: 1rem;
+  }
 }
