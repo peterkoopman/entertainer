@@ -1,21 +1,32 @@
 'use client';
 
+import { useState } from 'react';
 import UserAvatar from '@/components/UserAvatar/UserAvatar';
 import SidebarUserPopup from '../SidebarUserPopup/SidebarUserPopup';
 import style from './SidebarUser.module.css';
 
-const SidebarUser = () => {
+const SidebarUser = ({ closed }: { closed: boolean }) => {
+  const [showPopup, setShowPopup] = useState(false);
+
+  const togglePopup = () => {
+    setShowPopup(!showPopup);
+  };
+
   return (
-    <div className={style.user}>
-      <SidebarUserPopup />
-      <div className={style.userDisplay}>
-        <UserAvatar />
-        <div className={style.userText}>
-          <p className={style.userName}>Peter Koopman</p>
-          <p className={style.userEmail}>peter@scribbledesign.co.nz</p>
-        </div>
+    <>
+      <div className={style.user}>
+        <SidebarUserPopup showPopup={showPopup} setShowPopup={setShowPopup} />
+        <button
+          className={`${style.userDisplay} ${closed ? style.closed : ''}`}
+          onClick={togglePopup}>
+          <UserAvatar />
+          <div className={style.userText}>
+            <p className={style.userName}>Peter Koopman</p>
+            <p className={style.userEmail}>peter@scribbledesign.co.nz</p>
+          </div>
+        </button>
       </div>
-    </div>
+    </>
   );
 };
 

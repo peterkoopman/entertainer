@@ -1,5 +1,7 @@
 .user {
   margin-top: auto;
+  border-radius: 10px;
+  position: relative;
 }
 
 .userDisplay {
@@ -7,10 +9,32 @@
   gap: 10px;
   align-items: center;
   justify-content: space-between;
+  cursor: pointer;
+  background: var(--light-blue);
+  transition: background 0.3s ease-out;
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+}
+
+.userDisplay.closed {
+  background: none;
+  padding: 0;
+}
+
+.userDisplay:hover {
+  background-color: var(--lighter-blue);
+  box-shadow: var(--pop-up-shadow);
+}
+
+.userDisplay.closed:hover {
+  background: none;
 }
 
 .userText {
   font-size: 0.9rem;
+  line-height: 1.3rem;
+  text-align: left;
 }
 
 .userEmail {

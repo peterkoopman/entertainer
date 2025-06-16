@@ -1,3 +1,49 @@
 .popup {
-  display: none;
+  position: fixed;
+  bottom: 75px;
+  opacity: 0;
+  transform: translateY(1rem);
+  transition: opacity 0.3s ease-out,
+    transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  margin-top: auto;
+  margin-bottom: 0.5rem;
+  background: var(--lighter-blue);
+  border-radius: 10px;
+  box-shadow: var(--pop-up-shadow);
+  padding: 1rem;
+}
+
+.popup.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.popup ul {
+  list-style: none;
+  padding: 0;
+}
+
+.popup li {
+  margin: 0.5rem 0;
+}
+
+.popup li a {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: var(--lighter-blue);
+  border-radius: 10px;
+  padding: 0.5rem;
+  text-decoration: none;
+  transition: background 0.3s ease-out;
+}
+
+.popup li a:hover {
+  text-decoration: none;
+  background: var(--light-blue);
+}
+
+.icon {
+  font-size: 24px;
+  font-weight: 100;
 }

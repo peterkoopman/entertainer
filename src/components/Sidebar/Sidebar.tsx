@@ -30,7 +30,7 @@ const Sidebar = () => {
       </div>
       <Logo closed={!isOpen} />
       <Nav />
-      <SidebarUser />
+      <SidebarUser closed={!isOpen} />
     </div>
   );
 };
