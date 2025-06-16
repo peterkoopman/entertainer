@@ -4,28 +4,31 @@ import Nav from '@/components/Nav/Nav';
 import Logo from '@/components/Logo/Logo';
 import style from './Sidebar.module.css';
 import SidebarUser from './SidebarUser/SidebarUser';
-import { useState } from 'react';
+import { useContext } from 'react';
+import { SidebarContext, SidebarContextType } from '@/context/SidebarContext';
 
 const Sidebar = () => {
-  const [closed, setClosed] = useState(false);
+  const { isOpen, openSidebar, closeSidebar }: SidebarContextType =
+    useContext<SidebarContextType>(SidebarContext);
+
   // TODO: put closed into Context API so we can persisit the state when we change pages
   return (
-    <div className={`${style.sidebar} ${closed ? style.closed : ''}`}>
+    <div className={`${style.sidebar} ${isOpen ? '' : style.closed}`}>
       <div
-        onClick={() => setClosed(true)}
+        onClick={() => closeSidebar()}
         className={`${style.closeIcon} ${
-          closed ? style.closed : ''
+          isOpen ? '' : style.closed
         } material-symbols-outlined`}>
         left_panel_close
       </div>
       <div
-        onClick={() => setClosed(false)}
+        onClick={() => openSidebar()}
         className={`${style.openIcon} ${
-          closed ? style.closed : ''
+          isOpen ? '' : style.closed
         } material-symbols-outlined`}>
         left_panel_open
       </div>
-      <Logo closed={closed} />
+      <Logo closed={!isOpen} />
       <Nav />
       <SidebarUser />
     </div>

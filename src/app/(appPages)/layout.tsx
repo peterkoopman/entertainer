@@ -1,6 +1,9 @@
+'use client';
+
 import Sidebar from '@/components/Sidebar/Sidebar';
-import './appPages.css';
+import SidebarState from '@/context/SidebarContext';
 import MobileFooter from '@/components/MobileFooter/MobileFooter';
+import './appPages.css';
 
 export default function PageLayout({
   children,
@@ -8,10 +11,12 @@ export default function PageLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="sidebar-layout">
-      <Sidebar />
-      <main>{children}</main>
-      <MobileFooter />
-    </div>
+    <SidebarState>
+      <div className="sidebar-layout">
+        <Sidebar />
+        <main>{children}</main>
+        <MobileFooter />
+      </div>
+    </SidebarState>
   );
 }
