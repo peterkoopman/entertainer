@@ -11,7 +11,6 @@ const Sidebar = () => {
   const { isOpen, openSidebar, closeSidebar }: SidebarContextType =
     useContext<SidebarContextType>(SidebarContext);
 
-  // TODO: put closed into Context API so we can persisit the state when we change pages
   return (
     <div className={`${style.sidebar} ${isOpen ? '' : style.closed}`}>
       <div
