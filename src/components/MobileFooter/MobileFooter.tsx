@@ -15,7 +15,7 @@ const MobileFooter = () => {
   useEffect(() => {
     setShowMenu(false);
   }, [pathname]);
-
+  // TODO: replace SidebarUserPopup with MUI Menu
   return (
     <footer className={style.footer}>
       <Drawer anchor="left" open={showMenu} onClose={() => setShowMenu(false)}>

@@ -17,7 +17,7 @@ export default function ClientPage() {
 
   return (
     <ThemeProvider theme={theme}>
-      <h1>Client</h1>
+      <h1>Client {params.id}</h1>
       <Box
         component="form"
         sx={{
