@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import style from './Nav.module.css';
 
-const Nav = () => {
+const Nav = ({ ...props }) => {
   const navItems = [
     { label: 'Dashboard', path: '/', icon: 'space_dashboard' },
     { label: 'Calendar', path: '/calendar', icon: 'calendar_month' },
@@ -11,7 +11,7 @@ const Nav = () => {
     { label: 'Personnel', path: '/personnel', icon: 'group' },
   ];
   return (
-    <nav className={style.nav}>
+    <nav className={`${style.nav} ${props?.className}`}>
       <ul>
         {navItems.map((item, index) => (
           <li key={index}>

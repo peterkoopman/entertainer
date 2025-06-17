@@ -1,20 +1,26 @@
 'use client';
 
-import { Avatar } from '@mui/material';
-import { useState } from 'react';
+import { Avatar, Drawer } from '@mui/material';
+import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import SidebarUserPopup from '../Sidebar/SidebarUserPopup/SidebarUserPopup';
-import MobileMenu from '@/components/MobileMenu/MobileMenu';
+import Nav from '../Nav/Nav';
 import Link from 'next/link';
 import style from './MobileFooter.module.css';
 
-// TODO: Check out the MUI Avatar component for this
 const MobileFooter = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
+  const pathname = usePathname();
+  useEffect(() => {
+    setShowMenu(false);
+  }, [pathname]);
 
   return (
     <footer className={style.footer}>
-      <MobileMenu showMenu={showMenu} setShowMenu={setShowMenu} />
+      <Drawer anchor="left" open={showMenu} onClose={() => setShowMenu(false)}>
+        <Nav className={style.nav} />
+      </Drawer>
       <SidebarUserPopup showPopup={showPopup} setShowPopup={setShowPopup} />
       <Avatar
         src={'/PK_profile_pic.jpg'}
