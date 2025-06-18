@@ -6,6 +6,8 @@ import style from './Sidebar.module.css';
 import SidebarUser from './SidebarUser/SidebarUser';
 import { useContext } from 'react';
 import { SidebarContext, SidebarContextType } from '@/context/SidebarContext';
+import ClientSearch from '../ClientSearch/ClientSearch';
+import BookingSearch from '../BookingSearch/BookingSearch';
 
 const Sidebar = () => {
   const { isOpen, openSidebar, closeSidebar }: SidebarContextType =
@@ -28,7 +30,9 @@ const Sidebar = () => {
         left_panel_open
       </div>
       <Logo closed={!isOpen} />
+      <ClientSearch />
       <Nav />
+      <BookingSearch />
       <SidebarUser closed={!isOpen} />
     </div>
   );

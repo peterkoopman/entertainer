@@ -7,6 +7,8 @@ import SidebarUserPopup from '../Sidebar/SidebarUserPopup/SidebarUserPopup';
 import Nav from '../Nav/Nav';
 import Link from 'next/link';
 import style from './MobileFooter.module.css';
+import ClientSearch from '../ClientSearch/ClientSearch';
+import BookingSearch from '../BookingSearch/BookingSearch';
 
 const MobileFooter = () => {
   const [showPopup, setShowPopup] = useState(false);
@@ -18,8 +20,14 @@ const MobileFooter = () => {
 
   return (
     <footer className={style.footer}>
-      <Drawer anchor="left" open={showMenu} onClose={() => setShowMenu(false)}>
+      <Drawer
+        anchor="left"
+        open={showMenu}
+        onClose={() => setShowMenu(false)}
+        sx={{ pt: 1 }}>
+        <ClientSearch />
         <Nav className={style.nav} />
+        <BookingSearch />
       </Drawer>
       <SidebarUserPopup showPopup={showPopup} setShowPopup={setShowPopup} />
       <Avatar
