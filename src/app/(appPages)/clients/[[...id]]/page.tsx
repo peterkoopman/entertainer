@@ -1,19 +1,30 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import useCountries from '@/hooks/useCountries';
 import { theme } from '@/utils/muiThemes';
 import {
   Autocomplete,
   Box,
   Button,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
   TextField,
   ThemeProvider,
 } from '@mui/material';
 import { useParams } from 'next/navigation';
 
 export default function ClientPage() {
+  // TODO: set this on fetch
+  const [hasBookings, setHasBookings] = useState(false);
   const params = useParams<{ id: string[] }>();
   const { countries } = useCountries();
+
+  useEffect(() => {
+    setHasBookings(true);
+  }, []);
 
   return (
     <ThemeProvider theme={theme}>
@@ -36,6 +47,15 @@ export default function ClientPage() {
           options={countries}
           renderInput={(params) => <TextField {...params} label="Country" />}
         />
+        {hasBookings && (
+          <FormControl fullWidth sx={{ mt: 2, mb: 2 }}>
+            <InputLabel id="bookings-dropdown">Bookings</InputLabel>
+            <Select name="bookings" label="Bookings">
+              <MenuItem value="1">Booking 1</MenuItem>
+              <MenuItem value="2">Booking 2</MenuItem>
+            </Select>
+          </FormControl>
+        )}
         <Button type="submit" variant="contained">
           Save
         </Button>
