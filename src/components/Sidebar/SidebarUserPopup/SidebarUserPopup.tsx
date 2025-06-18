@@ -3,7 +3,8 @@
 import { useClickOutside } from '@/hooks/useClickOutside';
 import style from './SidebarUserPopup.module.css';
 import Link from 'next/link';
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 
 interface SidebarUserPopupProps {
   showPopup: boolean;
@@ -16,6 +17,12 @@ const SidebarUserPopup = ({
 }: SidebarUserPopupProps) => {
   const popupRef = useRef<HTMLDivElement | null>(null);
   useClickOutside(popupRef, () => setShowPopup(false));
+
+  // Hide popup on navigate
+  const pathname = usePathname();
+  useEffect(() => {
+    setShowPopup(false);
+  }, [pathname, setShowPopup]);
 
   const navItems = [
     { label: 'User account', path: '/account', icon: 'space_dashboard' },
