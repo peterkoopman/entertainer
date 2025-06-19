@@ -1,0 +1,11 @@
+.list {
+  display: grid;
+}
+
+.listItem {
+}
+
+.listItem a {
+  text-decoration: none;
+  display: inline-block;
+}
