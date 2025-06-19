@@ -1,13 +1,18 @@
 .sidebar {
   max-width: 18rem;
-  height: 100vh;
   flex-direction: column;
   justify-content: flex-start;
   align-items: flex-start;
+  flex: 1;
+  height: 100vh;
   padding: 1rem;
   background-color: var(--light-blue);
   display: none;
-  position: relative;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 1;
   transition: max-width 0.3s ease-out, padding 0.3s ease-out;
 }
 

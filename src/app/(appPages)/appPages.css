@@ -2,3 +2,7 @@
   display: flex;
   padding-bottom: 4.5rem;
 }
+
+main {
+  flex-grow: 1;
+}
