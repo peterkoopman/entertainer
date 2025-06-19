@@ -16,8 +16,16 @@
   padding: 1rem;
 }
 
+.halfWidth {
+  width: 100%;
+}
+
 @media screen and (min-width: 45rem) {
   .dateTimes {
     flex-wrap: nowrap;
+  }
+
+  .halfWidth {
+    width: 50%;
   }
 }
