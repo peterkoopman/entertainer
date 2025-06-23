@@ -17,6 +17,9 @@
 }
 
 @media screen and (min-width: 45rem) {
+  .drawer {
+    display: none;
+  }
   .footer {
     display: none;
   }

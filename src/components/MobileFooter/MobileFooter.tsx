@@ -21,12 +21,13 @@ const MobileFooter = () => {
   return (
     <footer className={style.footer}>
       <Drawer
+        className={style.drawer}
         anchor="left"
         open={showMenu}
         onClose={() => setShowMenu(false)}
         sx={{ pt: 1 }}>
         <ClientSearch />
-        <Nav className={style.nav} />
+        <Nav className={style.nav} isOpen={true} />
         <BookingSearch />
       </Drawer>
       <SidebarUserPopup showPopup={showPopup} setShowPopup={setShowPopup} />

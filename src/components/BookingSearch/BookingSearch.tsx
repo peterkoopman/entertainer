@@ -6,7 +6,7 @@ const BookingSearch = () => {
   return (
     <div className={style.search}>
       <LocalizationProvider dateAdapter={AdapterDayjs}>
-        <DatePicker label="Search bookings" />
+        <DatePicker label="Search bookings" sx={{ width: '100%' }} />
       </LocalizationProvider>
     </div>
   );
