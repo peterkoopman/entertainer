@@ -58,15 +58,21 @@ export default function PersonnelPage() {
           <Box>
             <List className={style.list}>
               {personnel.map((listPerson) => (
-                <ListItem key={listPerson.slug} className={style.listItem}>
+                <ListItem
+                  component="a"
+                  href={`/personnel/${listPerson.slug}`}
+                  key={listPerson.slug}
+                  className={style.listItem}
+                  sx={{ display: 'grid' }}>
                   <ListItemAvatar>
                     <Avatar alt={listPerson.name} src={listPerson.avatar} />
                   </ListItemAvatar>
-                  <Link href={`/personnel/${listPerson.slug}`}>
-                    <ListItemText primary={listPerson.name} />
-                  </Link>
+                  <ListItemText primary={listPerson.name} />
                   <ListItemText primary={listPerson.phone} />
-                  <ListItemText primary={listPerson.email} />
+                  <ListItemText
+                    primary={listPerson.email}
+                    className={style.email}
+                  />
                 </ListItem>
               ))}
             </List>

@@ -1,11 +1,33 @@
 .list {
   display: grid;
+  grid-template-columns: auto;
+  gap: 1rem;
 }
 
 .listItem {
+  grid-column: 1 / span 4;
+  display: grid;
+  grid-template-columns: subgrid;
+  gap: inherit;
 }
 
-.listItem a {
+.list a {
   text-decoration: none;
-  display: inline-block;
+  background-color: var(--background);
+  transition: background-color 0.3s ease-out;
+  border-radius: 5px;
+}
+
+.list a:hover {
+  background-color: var(--light-blue);
+}
+
+.email {
+  display: none;
+}
+
+@media screen and (min-width: 45rem) {
+  .email {
+    display: block;
+  }
 }
