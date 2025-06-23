@@ -5,7 +5,7 @@ import { Avatar } from '@mui/material';
 import SidebarUserPopup from '../SidebarUserPopup/SidebarUserPopup';
 import style from './SidebarUser.module.css';
 
-const SidebarUser = ({ closed }: { closed: boolean }) => {
+const SidebarUser = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
   const [showPopup, setShowPopup] = useState(false);
 
   const togglePopup = () => {
@@ -17,10 +17,11 @@ const SidebarUser = ({ closed }: { closed: boolean }) => {
       <div className={style.user}>
         <SidebarUserPopup showPopup={showPopup} setShowPopup={setShowPopup} />
         <button
-          className={`${style.userDisplay} ${closed ? style.closed : ''}`}
+          className={`${style.userDisplay} ${sidebarOpen ? '' : style.closed}`}
           onClick={togglePopup}>
           <Avatar src={'/PK_profile_pic.jpg'} alt={'Peter Koopman'} />
-          <div className={style.userText}>
+          <div
+            className={`${style.userText} ${sidebarOpen ? '' : style.closed}`}>
             <p className={style.userName}>Peter Koopman</p>
             <p className={style.userEmail}>peter@scribbledesign.co.nz</p>
           </div>

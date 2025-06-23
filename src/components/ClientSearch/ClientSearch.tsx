@@ -4,7 +4,8 @@ import style from './ClientSearch.module.css';
 
 const ClientSearch = () => {
   const [options, setOptions] = useState<string[]>([]);
-  // TODO: find clients in database - start with recent clients
+  // TODO: find clients in database - start with recent clients.
+  // setOptions initially loads recent clients, then changes with the search results
   return (
     <div className={style.clientSearch}>
       <Autocomplete

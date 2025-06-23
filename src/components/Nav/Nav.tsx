@@ -17,7 +17,7 @@ const Nav = ({ ...props }) => {
           <li key={index}>
             <Link href={item.path} title={item.label}>
               <div className="material-symbols-outlined">{item.icon}</div>
-              {item.label}
+              {props.isOpen ? item.label : ''}
             </Link>
           </li>
         ))}

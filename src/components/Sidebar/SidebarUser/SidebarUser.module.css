@@ -12,7 +12,6 @@
   cursor: pointer;
   background: var(--light-blue);
   transition: background 0.3s ease-out;
-  padding: 10px;
   border-radius: 10px;
   border: none;
 }
@@ -20,6 +19,7 @@
 .userDisplay.closed {
   background: none;
   padding: 0;
+  margin-left: -4px;
 }
 
 .userDisplay:hover {
@@ -35,6 +35,10 @@
   font-size: 0.9rem;
   line-height: 1.3rem;
   text-align: left;
+}
+
+.userText.closed {
+  display: none;
 }
 
 .userEmail {
