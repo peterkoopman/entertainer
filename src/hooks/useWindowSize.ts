@@ -5,7 +5,7 @@ function useWindowSize() {
     width: window.innerWidth,
     height: window.innerHeight,
   });
-  const timeoutRef = useRef<number | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const handleResize = () => {
