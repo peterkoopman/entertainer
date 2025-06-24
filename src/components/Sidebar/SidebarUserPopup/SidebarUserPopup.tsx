@@ -5,6 +5,9 @@ import style from './SidebarUserPopup.module.css';
 import Link from 'next/link';
 import { useRef, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
+import { List, ListItem } from '@mui/material';
+import { redirect } from 'next/navigation';
+import { createClient } from '@/utils/supabase/client';
 
 interface SidebarUserPopupProps {
   showPopup: boolean;
@@ -17,6 +20,7 @@ const SidebarUserPopup = ({
 }: SidebarUserPopupProps) => {
   const popupRef = useRef<HTMLDivElement | null>(null);
   useClickOutside(popupRef, () => setShowPopup(false));
+  const supabase = createClient();
 
   // Hide popup on navigate
   const pathname = usePathname();
@@ -24,28 +28,42 @@ const SidebarUserPopup = ({
     setShowPopup(false);
   }, [pathname, setShowPopup]);
 
-  const navItems = [
-    { label: 'User account', path: '/account', icon: 'space_dashboard' },
-    { label: 'Settings', path: '/settings', icon: 'settings' },
-    { label: 'Logout', path: '/logout', icon: 'logout' },
-  ];
+  const logout = async () => {
+    await supabase.auth.signOut();
+    // Redirect or refresh the page to reflect logged out state
+    redirect('/login');
+  };
 
   return (
     <div
       ref={popupRef}
       className={`${style.popup} ${showPopup ? style.show : ''}`}>
-      <ul>
-        {navItems.map((item, index) => (
-          <li key={index}>
-            <Link href={item.path} title={item.label}>
-              <div className={`material-symbols-outlined ${style.icon}`}>
-                {item.icon}
-              </div>
-              {item.label}
-            </Link>
-          </li>
-        ))}
-      </ul>
+      <List>
+        <ListItem>
+          <Link href="/account" title="User account">
+            <div className={`material-symbols-outlined ${style.icon}`}>
+              space_dashboard
+            </div>
+            User account
+          </Link>
+        </ListItem>
+        <ListItem>
+          <Link href="/settings" title="Settings">
+            <div className={`material-symbols-outlined ${style.icon}`}>
+              settings
+            </div>
+            Settings
+          </Link>
+        </ListItem>
+        <ListItem onClick={logout}>
+          <Link href={''} title="Logout">
+            <div className={`material-symbols-outlined ${style.icon}`}>
+              logout
+            </div>
+            Logout
+          </Link>
+        </ListItem>
+      </List>
     </div>
   );
 };
