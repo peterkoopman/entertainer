@@ -12,6 +12,7 @@ import {
   FormControlLabel,
   Button,
   FormGroup,
+  MenuItem,
 } from '@mui/material';
 import style from './account.module.css';
 
@@ -73,6 +74,11 @@ export default function AccountPage() {
         <TextField name="city" label="City" />
         <TextField name="country" label="Country" />
         <TextField name="tax_no" label="Tax number" />
+        {/* TODO: Populate skillset */}
+        <TextField name="skillset" label="Skillset" select>
+          <MenuItem value="1">Skill 1</MenuItem>
+          <MenuItem value="2">Skill 2</MenuItem>
+        </TextField>
         <FormGroup
           sx={{
             display: 'flex',
