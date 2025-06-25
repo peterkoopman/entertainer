@@ -48,13 +48,11 @@ export default function ClientPage() {
           renderInput={(params) => <TextField {...params} label="Country" />}
         />
         {hasBookings && (
-          <FormControl fullWidth sx={{ mt: 2, mb: 2 }}>
-            <InputLabel id="bookings-dropdown">Bookings</InputLabel>
-            <Select name="bookings" label="Bookings">
-              <MenuItem value="1">Booking 1</MenuItem>
-              <MenuItem value="2">Booking 2</MenuItem>
-            </Select>
-          </FormControl>
+          <TextField name="bookings" label="Bookings" select>
+            {/* TODO: Populate bookings */}
+            <MenuItem value="1">Booking 1</MenuItem>
+            <MenuItem value="2">Booking 2</MenuItem>
+          </TextField>
         )}
         <Button type="submit" variant="contained">
           Save
