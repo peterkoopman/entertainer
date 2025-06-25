@@ -19,7 +19,6 @@ import style from './account.module.css';
 export default function AccountPage() {
   const { user, profile, loading } = useUser();
   const userDetails = { ...user, ...profile };
-  console.log(userDetails);
 
   if (loading && !user) {
     return <h1>Loading...</h1>;
@@ -75,7 +74,7 @@ export default function AccountPage() {
         <TextField name="country" label="Country" />
         <TextField name="tax_no" label="Tax number" />
         {/* TODO: Populate skillset */}
-        <TextField name="skillset" label="Skillset" select>
+        <TextField name="skillset" label="Skillset" select value="">
           <MenuItem value="1">Skill 1</MenuItem>
           <MenuItem value="2">Skill 2</MenuItem>
         </TextField>

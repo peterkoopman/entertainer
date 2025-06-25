@@ -7,10 +7,7 @@ import {
   Autocomplete,
   Box,
   Button,
-  FormControl,
-  InputLabel,
   MenuItem,
-  Select,
   TextField,
   ThemeProvider,
 } from '@mui/material';
@@ -48,7 +45,7 @@ export default function ClientPage() {
           renderInput={(params) => <TextField {...params} label="Country" />}
         />
         {hasBookings && (
-          <TextField name="bookings" label="Bookings" select>
+          <TextField name="bookings" label="Bookings" select value="">
             {/* TODO: Populate bookings */}
             <MenuItem value="1">Booking 1</MenuItem>
             <MenuItem value="2">Booking 2</MenuItem>
