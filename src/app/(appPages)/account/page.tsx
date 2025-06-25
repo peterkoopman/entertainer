@@ -3,6 +3,7 @@
 import { useUser } from '@/hooks/useUser';
 import { ThemeProvider } from '@emotion/react';
 import { theme } from '@/utils/muiThemes';
+import { useState } from 'react';
 import Link from 'next/link';
 import {
   Avatar,
@@ -10,13 +11,23 @@ import {
   TextField,
   Checkbox,
   FormControlLabel,
+  InputLabel,
+  OutlinedInput,
+  FormControl,
+  Chip,
   Button,
   FormGroup,
   MenuItem,
+  Select,
+  SelectChangeEvent,
 } from '@mui/material';
 import style from './account.module.css';
 
+// TODO: populate from 'skills' table
+const skills = ['Bass', 'Guitar', 'Violin', 'Saxophone'];
+
 export default function AccountPage() {
+  const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
   const { user, profile, loading } = useUser();
   const userDetails = { ...user, ...profile };
 
@@ -36,6 +47,14 @@ export default function AccountPage() {
 
   const uploadAvatar = () => {};
   const resetPassword = () => {};
+  const handleSkillsetSelect = (
+    event: SelectChangeEvent<typeof selectedSkills>
+  ) => {
+    const {
+      target: { value },
+    } = event;
+    setSelectedSkills(typeof value === 'string' ? value.split(',') : value);
+  };
 
   return (
     <ThemeProvider theme={theme}>
@@ -74,10 +93,46 @@ export default function AccountPage() {
         <TextField name="country" label="Country" />
         <TextField name="tax_no" label="Tax number" />
         {/* TODO: Populate skillset */}
-        <TextField name="skillset" label="Skillset" select value="">
-          <MenuItem value="1">Skill 1</MenuItem>
-          <MenuItem value="2">Skill 2</MenuItem>
-        </TextField>
+        <FormControl sx={{ mt: 2, mb: 2, width: '100%' }}>
+          <InputLabel id="multi-select-label">Skillset</InputLabel>
+          <Select
+            labelId="multi-select-label"
+            id="skillset"
+            name="skillset"
+            multiple // This is the key prop for multi-select
+            value={selectedSkills}
+            onChange={handleSkillsetSelect}
+            input={
+              <OutlinedInput id="select-multiple-chip" label="Select Options" />
+            }
+            renderValue={(selected) => (
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                {selected.map((value) => (
+                  <Chip key={value} label={value} />
+                ))}
+              </Box>
+            )}
+            MenuProps={{
+              PaperProps: {
+                style: {
+                  maxHeight: 48 * 4.5 + 8, // Adjust dropdown height
+                  width: 250,
+                },
+              },
+            }}>
+            {skills.map((skill) => (
+              <MenuItem
+                key={skill}
+                value={skill}
+                // Optional: Add styling for selected items
+                // You can use a Checkbox here for a more traditional look
+                // selected={selectedOptions.indexOf(option) > -1}
+              >
+                {skill}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
         <FormGroup
           sx={{
             display: 'flex',
