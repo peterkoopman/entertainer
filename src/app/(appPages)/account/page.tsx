@@ -3,7 +3,7 @@
 import { useUser } from '@/hooks/useUser';
 import { ThemeProvider } from '@emotion/react';
 import { theme } from '@/utils/muiThemes';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   Avatar,
@@ -23,13 +23,37 @@ import {
 } from '@mui/material';
 import style from './account.module.css';
 
+interface UserDetails {
+  id?: string;
+  full_name?: string;
+  company?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  city?: string;
+  country?: string;
+  tax_no?: string;
+  avatar_url?: string;
+  witholding_tax?: boolean;
+  gst_registered?: boolean;
+  skillset?: string[];
+}
+
 // TODO: populate from 'skills' table
 const skills = ['Bass', 'Guitar', 'Violin', 'Saxophone'];
 
 export default function AccountPage() {
-  const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
   const { user, profile, loading } = useUser();
-  const userDetails = { ...user, ...profile };
+
+  const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
+  const [userDetails, setUserDetails] = useState<UserDetails>({
+    ...user,
+    ...profile,
+  });
+
+  useEffect(() => {
+    setUserDetails({ ...user, ...profile });
+  }, [user, profile]);
 
   if (loading && !user) {
     return <h1>Loading...</h1>;
@@ -84,14 +108,64 @@ export default function AccountPage() {
             onChange={uploadAvatar}
           />
         </label>
-        <TextField name="full_name" label="Name" />
-        <TextField name="company" label="Company" />
-        <TextField name="email" label="Email" />
-        <TextField name="phone" label="Phone" />
-        <TextField name="address" label="Address" />
-        <TextField name="city" label="City" />
-        <TextField name="country" label="Country" />
-        <TextField name="tax_no" label="Tax number" />
+        <TextField
+          name="full_name"
+          label="Name"
+          value={userDetails.full_name || ''}
+          onChange={(e) =>
+            setUserDetails({ ...userDetails, full_name: e.target.value })
+          }
+        />
+        <TextField
+          type="email"
+          name="email"
+          label="Email"
+          value={userDetails.email || ''}
+          onChange={(e) =>
+            setUserDetails({ ...userDetails, email: e.target.value })
+          }
+        />
+        <TextField
+          type="tel"
+          name="phone"
+          label="Phone"
+          value={userDetails.phone || ''}
+          onChange={(e) =>
+            setUserDetails({ ...userDetails, phone: e.target.value })
+          }
+        />
+        <TextField
+          name="address"
+          label="Address"
+          value={userDetails.address || ''}
+          onChange={(e) =>
+            setUserDetails({ ...userDetails, address: e.target.value })
+          }
+        />
+        <TextField
+          name="city"
+          label="City"
+          value={userDetails.city || ''}
+          onChange={(e) =>
+            setUserDetails({ ...userDetails, city: e.target.value })
+          }
+        />
+        <TextField
+          name="country"
+          label="Country"
+          value={userDetails.country || ''}
+          onChange={(e) =>
+            setUserDetails({ ...userDetails, country: e.target.value })
+          }
+        />
+        <TextField
+          name="tax_no"
+          label="Tax number"
+          value={userDetails.tax_no || ''}
+          onChange={(e) =>
+            setUserDetails({ ...userDetails, tax_no: e.target.value })
+          }
+        />
         {/* TODO: Populate skillset */}
         <FormControl sx={{ mt: 2, mb: 2, width: '100%' }}>
           <InputLabel id="multi-select-label">Skillset</InputLabel>
