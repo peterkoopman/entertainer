@@ -22,6 +22,7 @@ import {
   SelectChangeEvent,
 } from '@mui/material';
 import style from './account.module.css';
+import { useSkills, Skill } from '@/hooks/useSkills';
 
 interface UserDetails {
   id?: string;
@@ -39,12 +40,11 @@ interface UserDetails {
   skillset?: string[];
 }
 
-// TODO: populate from 'skills' table
-const skills = ['Bass', 'Guitar', 'Violin', 'Saxophone'];
-
 export default function AccountPage() {
   const { user, profile, loading } = useUser();
+  const { skills } = useSkills();
 
+  const [skillSet, setSkillSet] = useState<Skill[] | null>([]);
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
   const [userDetails, setUserDetails] = useState<UserDetails>({
     ...user,
@@ -54,6 +54,11 @@ export default function AccountPage() {
   useEffect(() => {
     setUserDetails({ ...user, ...profile });
   }, [user, profile]);
+
+  useEffect(() => {
+    console.log(skills);
+    setSkillSet(skills);
+  }, [skills]);
 
   if (loading && !user) {
     return <h1>Loading...</h1>;
@@ -166,7 +171,6 @@ export default function AccountPage() {
             setUserDetails({ ...userDetails, tax_no: e.target.value })
           }
         />
-        {/* TODO: Populate skillset */}
         <FormControl sx={{ mt: 2, mb: 2, width: '100%' }}>
           <InputLabel id="multi-select-label">Skillset</InputLabel>
           <Select
@@ -194,17 +198,18 @@ export default function AccountPage() {
                 },
               },
             }}>
-            {skills.map((skill) => (
-              <MenuItem
-                key={skill}
-                value={skill}
-                // Optional: Add styling for selected items
-                // You can use a Checkbox here for a more traditional look
-                // selected={selectedOptions.indexOf(option) > -1}
-              >
-                {skill}
-              </MenuItem>
-            ))}
+            {skills &&
+              skillSet?.map((skill) => (
+                <MenuItem
+                  key={skill.id}
+                  value={skill.name}
+                  // Optional: Add styling for selected items
+                  // You can use a Checkbox here for a more traditional look
+                  // selected={selectedOptions.indexOf(option) > -1}
+                >
+                  {skill.name}
+                </MenuItem>
+              ))}
           </Select>
         </FormControl>
         <FormGroup
