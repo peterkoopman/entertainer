@@ -42,13 +42,6 @@ interface UserDetails {
 export default function AccountPage() {
   const { user, profile, loading } = useUser();
 
-  const [skillSet, setSkillSet] = useState<Skillset[] | null>([]);
-  const [selectedSkills, setSelectedSkills] = useState<Skillset[]>([
-    {
-      id: '0',
-      name: '',
-    },
-  ]);
   const [userDetails, setUserDetails] = useState<UserDetails>({
     ...user,
     ...profile,
@@ -56,16 +49,7 @@ export default function AccountPage() {
 
   useEffect(() => {
     setUserDetails({ ...user, ...profile });
-    fetchSkills(user?.id).then((skills) => setSelectedSkills(skills));
   }, [user, profile]);
-
-  useEffect(() => {
-    fetchAllSkills().then((skills) => setSkillSet(skills));
-  }, []);
-
-  useEffect(() => {
-    console.log(selectedSkills, skillSet);
-  }, [selectedSkills]);
 
   if (loading && !user) {
     return <h1>Loading...</h1>;
@@ -83,12 +67,6 @@ export default function AccountPage() {
 
   const uploadAvatar = () => {};
   const resetPassword = () => {};
-  const handleSkillsetSelect = (event: ChangeEvent<HTMLInputElement>) => {
-    const {
-      target: { value },
-    } = event;
-    console.log(value);
-  };
 
   return (
     <ThemeProvider theme={theme}>
@@ -176,48 +154,6 @@ export default function AccountPage() {
             setUserDetails({ ...userDetails, tax_no: e.target.value })
           }
         />
-        <FormControl sx={{ mt: 2, mb: 2, width: '100%' }}>
-          <InputLabel id="multi-select-label">Skillset</InputLabel>
-          <Select
-            labelId="multi-select-label"
-            id="skillset"
-            name="skillset"
-            multiple // This is the key prop for multi-select
-            value={selectedSkills?.map((skill) => skill.id)}
-            onChange={handleSkillsetSelect}
-            input={
-              <OutlinedInput id="select-multiple-chip" label="Select Options" />
-            }
-            renderValue={(selectedIds: string[]) => (
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                {selectedIds.map((id) => {
-                  const value = skillSet?.find((skill) => skill.id === id);
-                  return <Chip key={id} label={value?.name} />;
-                })}
-              </Box>
-            )}
-            MenuProps={{
-              PaperProps: {
-                style: {
-                  maxHeight: 48 * 4.5 + 8, // Adjust dropdown height
-                  width: 250,
-                },
-              },
-            }}>
-            {skillSet &&
-              skillSet.map((skill) => (
-                <MenuItem
-                  key={skill.id}
-                  value={skill.name}
-                  // Optional: Add styling for selected items
-                  // You can use a Checkbox here for a more traditional look
-                  // selected={selectedOptions.indexOf(option) > -1}
-                >
-                  {skill.name}
-                </MenuItem>
-              ))}
-          </Select>
-        </FormControl>
         <FormGroup
           sx={{
             display: 'flex',
