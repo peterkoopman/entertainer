@@ -3,7 +3,8 @@
 import { useUser } from '@/hooks/useUser';
 import { ThemeProvider } from '@emotion/react';
 import { theme } from '@/utils/muiThemes';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, ChangeEvent } from 'react';
+import { fetchAllSkills, fetchSkills, Skillset } from './actions';
 import Link from 'next/link';
 import {
   Avatar,
@@ -19,10 +20,8 @@ import {
   FormGroup,
   MenuItem,
   Select,
-  SelectChangeEvent,
 } from '@mui/material';
 import style from './account.module.css';
-import { useSkills, Skill } from '@/hooks/useSkills';
 
 interface UserDetails {
   id?: string;
@@ -42,10 +41,14 @@ interface UserDetails {
 
 export default function AccountPage() {
   const { user, profile, loading } = useUser();
-  const { skills } = useSkills();
 
-  const [skillSet, setSkillSet] = useState<Skill[] | null>([]);
-  const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
+  const [skillSet, setSkillSet] = useState<Skillset[] | null>([]);
+  const [selectedSkills, setSelectedSkills] = useState<Skillset[]>([
+    {
+      id: '0',
+      name: '',
+    },
+  ]);
   const [userDetails, setUserDetails] = useState<UserDetails>({
     ...user,
     ...profile,
@@ -53,12 +56,16 @@ export default function AccountPage() {
 
   useEffect(() => {
     setUserDetails({ ...user, ...profile });
+    fetchSkills(user?.id).then((skills) => setSelectedSkills(skills));
   }, [user, profile]);
 
   useEffect(() => {
-    console.log(skills);
-    setSkillSet(skills);
-  }, [skills]);
+    fetchAllSkills().then((skills) => setSkillSet(skills));
+  }, []);
+
+  useEffect(() => {
+    console.log(selectedSkills, skillSet);
+  }, [selectedSkills]);
 
   if (loading && !user) {
     return <h1>Loading...</h1>;
@@ -76,13 +83,11 @@ export default function AccountPage() {
 
   const uploadAvatar = () => {};
   const resetPassword = () => {};
-  const handleSkillsetSelect = (
-    event: SelectChangeEvent<typeof selectedSkills>
-  ) => {
+  const handleSkillsetSelect = (event: ChangeEvent<HTMLInputElement>) => {
     const {
       target: { value },
     } = event;
-    setSelectedSkills(typeof value === 'string' ? value.split(',') : value);
+    console.log(value);
   };
 
   return (
@@ -178,16 +183,17 @@ export default function AccountPage() {
             id="skillset"
             name="skillset"
             multiple // This is the key prop for multi-select
-            value={selectedSkills}
+            value={selectedSkills?.map((skill) => skill.id)}
             onChange={handleSkillsetSelect}
             input={
               <OutlinedInput id="select-multiple-chip" label="Select Options" />
             }
-            renderValue={(selected) => (
+            renderValue={(selectedIds: string[]) => (
               <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                {selected.map((value) => (
-                  <Chip key={value} label={value} />
-                ))}
+                {selectedIds.map((id) => {
+                  const value = skillSet?.find((skill) => skill.id === id);
+                  return <Chip key={id} label={value?.name} />;
+                })}
               </Box>
             )}
             MenuProps={{
@@ -198,8 +204,8 @@ export default function AccountPage() {
                 },
               },
             }}>
-            {skills &&
-              skillSet?.map((skill) => (
+            {skillSet &&
+              skillSet.map((skill) => (
                 <MenuItem
                   key={skill.id}
                   value={skill.name}
