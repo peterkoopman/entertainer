@@ -2,14 +2,7 @@
 
 import { createClient } from '@/utils/supabase/server';
 
-export interface Skillset {
-  id: string;
-  name: string;
-}
-
-export async function fetchSkills(
-  user_id: string | undefined
-): Promise<Skillset[] | null> {
+export async function fetchSkills(user_id: string | undefined) {
   const supabase = createClient();
   if (!user_id) {
     return null;
@@ -25,12 +18,11 @@ export async function fetchSkills(
     return null;
   }
 
-  const skills: Skillset[] = data.map((item) => item.skill as Skillset);
-  console.log(skills);
+  const skills = data.map((item) => item.skill);
   return skills;
 }
 
-export async function fetchAllSkills(): Promise<Skillset[] | null> {
+export async function fetchAllSkills() {
   const supabase = createClient();
 
   const { data, error } = await (await supabase)

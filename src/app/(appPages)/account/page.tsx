@@ -3,8 +3,8 @@
 import { useUser } from '@/hooks/useUser';
 import { ThemeProvider } from '@emotion/react';
 import { theme } from '@/utils/muiThemes';
-import { useState, useEffect, ChangeEvent } from 'react';
-import { fetchAllSkills, fetchSkills, Skillset } from './actions';
+import { useState, useEffect } from 'react';
+import { SelectChangeEvent } from '@mui/material';
 import Link from 'next/link';
 import {
   Avatar,
@@ -12,16 +12,17 @@ import {
   TextField,
   Checkbox,
   FormControlLabel,
-  InputLabel,
-  OutlinedInput,
-  FormControl,
-  Chip,
   Button,
   FormGroup,
-  MenuItem,
+  FormControl,
+  InputLabel,
   Select,
+  OutlinedInput,
+  MenuItem,
+  Chip,
 } from '@mui/material';
 import style from './account.module.css';
+import { fetchAllSkills, fetchSkills } from './actions';
 
 interface UserDetails {
   id?: string;
@@ -34,22 +35,42 @@ interface UserDetails {
   country?: string;
   tax_no?: string;
   avatar_url?: string;
-  witholding_tax?: boolean;
+  withholding_tax?: boolean;
   gst_registered?: boolean;
   skillset?: string[];
+}
+
+interface Skill {
+  id: number;
+  name: string | null;
 }
 
 export default function AccountPage() {
   const { user, profile, loading } = useUser();
 
   const [userDetails, setUserDetails] = useState<UserDetails>({
-    ...user,
+    id: user?.id,
+    email: user?.email,
     ...profile,
   });
+  const [skills, setSkills] = useState<Skill[] | null>([]);
+  const [selectedSkills, setSelectedSkills] = useState<Skill[]>([]);
+  const [selectedOptions, setSelectedOptions] = useState<(string | null)[]>([]);
 
   useEffect(() => {
     setUserDetails({ ...user, ...profile });
+    fetchSkills(user?.id).then((data) => {
+      console.log(data);
+      setSelectedSkills(data as Skill[] | []);
+      if (data) setSelectedOptions(data.map((skill) => skill && skill.name));
+    });
   }, [user, profile]);
+
+  useEffect(() => {
+    fetchAllSkills().then((data) => {
+      setSkills(data);
+    });
+  }, []);
 
   if (loading && !user) {
     return <h1>Loading...</h1>;
@@ -67,6 +88,16 @@ export default function AccountPage() {
 
   const uploadAvatar = () => {};
   const resetPassword = () => {};
+
+  const handleSkillSelect = (
+    event: SelectChangeEvent<typeof selectedOptions>
+  ) => {
+    const {
+      target: { value },
+    } = event;
+
+    setSelectedOptions(typeof value === 'string' ? value.split(',') : value);
+  };
 
   return (
     <ThemeProvider theme={theme}>
@@ -154,6 +185,48 @@ export default function AccountPage() {
             setUserDetails({ ...userDetails, tax_no: e.target.value })
           }
         />
+        <FormControl sx={{ mt: 2, mb: 2, width: '100%' }}>
+          <InputLabel id="multi-select-label">Skillset</InputLabel>
+          <Select
+            labelId="multi-select-label"
+            id="skillset"
+            name="skillset"
+            multiple // This is the key prop for multi-select
+            value={selectedOptions?.map((skill) => skill) || []}
+            onChange={handleSkillSelect}
+            input={
+              <OutlinedInput id="select-multiple-chip" label="Select Options" />
+            }
+            renderValue={(selectedSkills) => (
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                {selectedSkills &&
+                  selectedSkills.map((value) => {
+                    return <Chip key={value} label={value} />;
+                  })}
+              </Box>
+            )}
+            MenuProps={{
+              PaperProps: {
+                style: {
+                  maxHeight: 48 * 4.5 + 8, // Adjust dropdown height
+                  width: 250,
+                },
+              },
+            }}>
+            {skills &&
+              skills.map((skill) => (
+                <MenuItem
+                  key={skill.id}
+                  value={skill.name || ''}
+                  // Optional: Add styling for selected items
+                  // You can use a Checkbox here for a more traditional look
+                  // selected={selectedOptions.indexOf(option) > -1}
+                >
+                  {skill.name}
+                </MenuItem>
+              ))}
+          </Select>
+        </FormControl>
         <FormGroup
           sx={{
             display: 'flex',
@@ -162,11 +235,11 @@ export default function AccountPage() {
             mb: 2,
           }}>
           <FormControlLabel
-            control={<Checkbox name="witholding_tax" />}
-            label="Witholding tax?"
+            control={<Checkbox name="withholding_tax" />}
+            label="Withholding tax?"
           />
           <FormControlLabel
-            control={<Checkbox name="witholding_tax" />}
+            control={<Checkbox name="withholding_tax" />}
             label="GST Registered?"
           />
         </FormGroup>

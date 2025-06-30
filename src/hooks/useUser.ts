@@ -15,7 +15,7 @@ interface UserProfile {
   city: string;
   country: string;
   tax_no: string;
-  witholding_tax: boolean;
+  withholding_tax: boolean;
   gst_registered: boolean;
   created_at: string;
   updated_at: string;
@@ -49,7 +49,7 @@ export function useUser(): UseUserResult {
         if (profileError) {
           console.error('Error fetching user profile:', profileError.message);
         } else if (profileData) {
-          setProfile(profileData);
+          setProfile(profileData as UserProfile);
         }
       }
 
