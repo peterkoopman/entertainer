@@ -3,7 +3,7 @@
 import { useUser } from '@/hooks/useUser';
 import { ThemeProvider } from '@emotion/react';
 import { theme } from '@/utils/muiThemes';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, ChangeEvent, useActionState } from 'react';
 import { SelectChangeEvent } from '@mui/material';
 import Link from 'next/link';
 import {
@@ -22,7 +22,7 @@ import {
   Chip,
 } from '@mui/material';
 import style from './account.module.css';
-import { fetchAllSkills, fetchSkills } from './actions';
+import { fetchAllSkills, fetchSkills, updateAccount } from './actions';
 
 interface UserDetails {
   id?: string;
@@ -54,15 +54,18 @@ export default function AccountPage() {
     ...profile,
   });
   const [skills, setSkills] = useState<Skill[] | null>([]);
-  const [selectedSkills, setSelectedSkills] = useState<Skill[]>([]);
-  const [selectedOptions, setSelectedOptions] = useState<(string | null)[]>([]);
+  const [selectedSkills, setSelectedSkills] = useState<(string | null)[]>([]);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [formState, formAction, isPending] = useActionState(updateAccount, {});
 
   useEffect(() => {
     setUserDetails({ ...user, ...profile });
+    setPreviewUrl(profile?.avatar_url || null);
+  }, [user, profile]);
+
+  useEffect(() => {
     fetchSkills(user?.id).then((data) => {
-      console.log(data);
-      setSelectedSkills(data as Skill[] | []);
-      if (data) setSelectedOptions(data.map((skill) => skill && skill.name));
+      if (data) setSelectedSkills(data.map((skill) => skill && skill.name));
     });
   }, [user, profile]);
 
@@ -86,17 +89,35 @@ export default function AccountPage() {
     );
   }
 
-  const uploadAvatar = () => {};
+  // Filename must include user uuid for correct access
+  const handleAvatarChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+    if (!allowedTypes.includes(file.type)) {
+      alert('Only JPEG, PNG, and GIF images are allowed.');
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      // 10MB limit
+      alert('File size exceeds 10MB limit.');
+      return;
+    }
+    setPreviewUrl(URL.createObjectURL(file));
+  };
+
   const resetPassword = () => {};
 
   const handleSkillSelect = (
-    event: SelectChangeEvent<typeof selectedOptions>
+    event: SelectChangeEvent<typeof selectedSkills>
   ) => {
     const {
       target: { value },
     } = event;
 
-    setSelectedOptions(typeof value === 'string' ? value.split(',') : value);
+    setSelectedSkills(typeof value === 'string' ? value.split(',') : value);
   };
 
   return (
@@ -105,6 +126,7 @@ export default function AccountPage() {
       <p>Manage your user profile</p>
       <Box
         component="form"
+        action={updateAccount}
         sx={{
           maxWidth: 720,
           width: 1,
@@ -113,7 +135,7 @@ export default function AccountPage() {
         }}>
         <label className={style.avatarContainer}>
           <Avatar
-            src={userDetails.avatar_url}
+            src={previewUrl || userDetails.avatar_url || ''}
             sx={{ width: 120, height: 120 }}
             className={style.avatar}
           />
@@ -124,7 +146,7 @@ export default function AccountPage() {
             type="file"
             name="avatar"
             className={style.fileInput}
-            onChange={uploadAvatar}
+            onChange={handleAvatarChange}
           />
         </label>
         <TextField
@@ -192,7 +214,7 @@ export default function AccountPage() {
             id="skillset"
             name="skillset"
             multiple // This is the key prop for multi-select
-            value={selectedOptions?.map((skill) => skill) || []}
+            value={selectedSkills?.map((skill) => skill) || []}
             onChange={handleSkillSelect}
             input={
               <OutlinedInput id="select-multiple-chip" label="Select Options" />
