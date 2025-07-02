@@ -22,7 +22,7 @@ import {
   Chip,
 } from '@mui/material';
 import style from './account.module.css';
-import { fetchAllSkills, fetchSkills, updateAccount } from './actions';
+import { fetchAllSkills, fetchSkills, Update, updateAccount } from './actions';
 
 interface UserDetails {
   id?: string;
@@ -56,7 +56,13 @@ export default function AccountPage() {
   const [skills, setSkills] = useState<Skill[] | null>([]);
   const [selectedSkills, setSelectedSkills] = useState<(string | null)[]>([]);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [formState, formAction, isPending] = useActionState(updateAccount, {});
+  const [formState, formAction] = useActionState<Update, FormData>(
+    updateAccount,
+    {
+      success: false,
+      message: '',
+    }
+  );
 
   useEffect(() => {
     setUserDetails({ ...user, ...profile });
@@ -74,6 +80,10 @@ export default function AccountPage() {
       setSkills(data);
     });
   }, []);
+
+  useEffect(() => {
+    if (formState.message) console.log(formState.message);
+  }, [formState]);
 
   if (loading && !user) {
     return <h1>Loading...</h1>;
@@ -126,7 +136,7 @@ export default function AccountPage() {
       <p>Manage your user profile</p>
       <Box
         component="form"
-        action={updateAccount}
+        action={formAction}
         sx={{
           maxWidth: 720,
           width: 1,
@@ -165,6 +175,12 @@ export default function AccountPage() {
           onChange={(e) =>
             setUserDetails({ ...userDetails, email: e.target.value })
           }
+          slotProps={{
+            htmlInput: {
+              // Targeting the native HTML <input> or <textarea> element
+              readOnly: true,
+            },
+          }}
         />
         <TextField
           type="tel"

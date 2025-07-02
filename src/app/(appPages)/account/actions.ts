@@ -17,14 +17,13 @@ interface RawData {
   gst_registered: boolean;
 }
 
-interface Update {
+export interface Update {
   success: boolean;
-  state?: RawData;
   message?: string;
 }
 
 export async function fetchSkills(user_id: string | undefined) {
-  const supabase = createClient();
+  const supabase = await createClient();
   if (!user_id) {
     return null;
   }
@@ -44,11 +43,9 @@ export async function fetchSkills(user_id: string | undefined) {
 }
 
 export async function fetchAllSkills() {
-  const supabase = createClient();
+  const supabase = await createClient();
 
-  const { data, error } = await (await supabase)
-    .from('skill')
-    .select(`id, name`);
+  const { data, error } = await supabase.from('skill').select(`id, name`);
 
   if (error) {
     console.error('Error fetching all skills:', error.message);
@@ -58,29 +55,64 @@ export async function fetchAllSkills() {
   return data;
 }
 
-export async function updateAccount(
-  prevState: unknown,
-  formData: FormData
-): Promise<{ success: boolean; message: string }> {
+async function updateSkills(user_id: string | undefined, skills: string) {
+  const supabase = await createClient();
+  const allSkills = await fetchAllSkills();
+  const newSkills = skills
+    .split(',')
+    .map((skill) => allSkills?.find((s) => s.name === skill.trim()));
+  const newSkillIds = newSkills.map((skill) => skill?.id);
+
+  const currentSkills = (await fetchSkills(user_id)) || [];
+  const currentSkillIds = currentSkills.map((skill) => skill?.id || null);
+  const toDelete =
+    currentSkillIds.filter((id) => id && !newSkillIds.includes(id)) || [];
+  const toAdd = newSkillIds.filter(
+    (id) => id && !currentSkillIds?.includes(id)
+  );
+
+  // Perform deletions
+  if (toDelete.length > 0 && user_id) {
+    await supabase
+      .from('user_skillset')
+      .delete()
+      .eq('user_id', user_id)
+      .in('skill_id', toDelete);
+  }
+
+  // Perform additions
+  if (toAdd.length > 0 && user_id) {
+    const toInsert = toAdd.map((id) => ({
+      user_id: user_id,
+      skill_id: id,
+    }));
+    await supabase.from('user_skillset').insert(toInsert);
+  }
+
+  return {
+    success: true,
+    message: 'Skills updated successfully',
+  };
+}
+
+async function uploadAvatar(avatar: File) {
   const supabase = await createClient();
   const user = await supabase.auth.getUser();
-
-  if (!user.data.user) {
-    return { success: false, message: 'Error: User not authenticated' };
-  }
-  console.log(formData);
-  const avatar = (formData.get('avatar') as File) || null;
 
   if (!avatar) {
     return { success: false, message: 'Error: No avatar provided' };
   }
   const fileExt = avatar.name.split('.').pop();
-  const fileName = user.data.user.id; // Use user ID for unique filename
+  const userId = user.data.user?.id || null; // Use user ID for unique filename
+
+  if (!userId) {
+    return { success: false, message: 'Error: User not signed in' };
+  }
 
   try {
     const { data, error } = await supabase.storage
       .from('avatars')
-      .upload(`${fileName}.${fileExt}`, avatar, {
+      .upload(`${userId}.${fileExt}`, avatar, {
         cacheControl: '3600',
         upsert: true, // Overwrite if avatar already exists
         contentType: avatar.type,
@@ -94,15 +126,15 @@ export async function updateAccount(
     // Update user profile table with avatar URL
     const publicUrl = supabase.storage
       .from('avatars')
-      .getPublicUrl(`${fileName}.${fileExt}`).data.publicUrl;
+      .getPublicUrl(`${userId}.${fileExt}`).data.publicUrl;
     await supabase
       .from('userprofile')
       .update({ avatar_url: publicUrl })
-      .eq('id', user.data.user.id);
+      .eq('id', userId);
 
     return {
       success: true,
-      message: `Avatar uploaded successfully. Public url: ${publicUrl}`,
+      message: publicUrl,
     };
   } catch (error) {
     console.error('Unexpected error:', error);
@@ -110,8 +142,49 @@ export async function updateAccount(
   }
 }
 
+export async function updateAccount(
+  prevState: Update,
+  formData: FormData
+): Promise<{ success: boolean; message: string }> {
+  const supabase = await createClient();
+  const user = await supabase.auth.getUser();
+
+  if (!user.data.user) {
+    return { success: false, message: 'Error: User not authenticated' };
+  }
+  console.log(formData);
+  const avatar = (formData.get('avatar') as File) || null;
+
+  await uploadAvatar(avatar);
+
+  const skills = formData.get('skillset') as string;
+  const skillsUpdate = await updateSkills(user.data.user?.id, skills);
+
+  console.log(skillsUpdate);
+
+  const { data, error } = await supabase.from('userprofile').upsert({
+    id: user.data.user?.id,
+    full_name: formData.get('full_name') as string,
+    phone: formData.get('phone') as string,
+    address: formData.get('address') as string,
+    city: formData.get('city') as string,
+    country: formData.get('country') as string,
+    tax_no: formData.get('tax_no') as string,
+    withholding_tax: formData.get('withholding_tax') === 'on',
+    gst_registered: formData.get('gst_registered') === 'on',
+    skillset: skillsUpdate,
+  });
+
+  console.log(data, error);
+
+  return {
+    success: true,
+    message: `Account details saved successfully`,
+  };
+}
+
 // Server Action or API route to get signed URL
-export async function getSignedAvatarUrl(userId, extension) {
+export async function getSignedAvatarUrl(userId: string, extension: string) {
   const supabase = await createClient();
   const { data, error } = await supabase.storage
     .from('avatars')
