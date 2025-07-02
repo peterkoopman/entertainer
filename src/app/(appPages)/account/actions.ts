@@ -2,21 +2,6 @@
 
 import { createClient } from '@/utils/supabase/server';
 
-interface RawData {
-  avatar?: string;
-  id?: string;
-  name?: string;
-  email?: string;
-  phone?: string;
-  address?: string;
-  city?: string;
-  country?: string;
-  tax_no?: string;
-  skillset: string[];
-  withholding_tax: boolean;
-  gst_registered: boolean;
-}
-
 export interface Update {
   success: boolean;
   message?: string;
@@ -134,7 +119,7 @@ async function uploadAvatar(avatar: File) {
 
     return {
       success: true,
-      message: publicUrl,
+      message: `Public url: ${publicUrl}, Data: ${JSON.stringify(data)}`,
     };
   } catch (error) {
     console.error('Unexpected error:', error);
