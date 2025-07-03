@@ -72,6 +72,12 @@ export default function AccountPage() {
   );
 
   useEffect(() => {
+    if (formState) {
+      console.log(formState.message);
+    }
+  }, [formState]);
+
+  useEffect(() => {
     setUserDetails({ ...user, ...profile });
     updateAvatarUrl(`${profile?.avatar_url}?t=${new Date().getTime()}` || '');
   }, [user, profile]);
