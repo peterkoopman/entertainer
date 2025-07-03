@@ -11,19 +11,20 @@ import { useUser } from '@/hooks/useUser';
 import { AvatarContext } from '@/context/AvatarContext';
 import { ThemeProvider } from '@emotion/react';
 import { theme } from '@/utils/muiThemes';
-import { SelectChangeEvent } from '@mui/material';
 import Link from 'next/link';
 import {
   Avatar,
   Box,
   TextField,
   Checkbox,
+  CircularProgress,
   FormControlLabel,
   Button,
   FormGroup,
   FormControl,
   InputLabel,
   Select,
+  SelectChangeEvent,
   OutlinedInput,
   MenuItem,
   Chip,
@@ -61,24 +62,41 @@ export default function AccountPage() {
     email: user?.email,
     ...profile,
   });
+  const [initialData, setInitialData] = useState<UserDetails>({
+    id: user?.id,
+    email: user?.email,
+    ...profile,
+  });
   const [skills, setSkills] = useState<Skill[] | null>([]);
   const [selectedSkills, setSelectedSkills] = useState<(string | null)[]>([]);
-  const [formState, formAction] = useActionState<Update, FormData>(
+  const [formState, formAction, isPending] = useActionState<Update, FormData>(
     updateAccount,
     {
       success: false,
       message: '',
     }
   );
+  const [isDirty, setIsDirty] = useState(false);
+
+  useEffect(() => {
+    const dirty = Object.keys(userDetails).some(
+      (key) =>
+        userDetails[key as keyof UserDetails] !==
+        initialData[key as keyof UserDetails]
+    );
+    setIsDirty(dirty);
+  }, [initialData, userDetails]);
 
   useEffect(() => {
     if (formState) {
       console.log(formState.message);
     }
+    if (formState.success) setIsDirty(false);
   }, [formState]);
 
   useEffect(() => {
     setUserDetails({ ...user, ...profile });
+    setInitialData({ ...user, ...profile });
     updateAvatarUrl(`${profile?.avatar_url}?t=${new Date().getTime()}` || '');
   }, [user, profile]);
 
@@ -124,7 +142,7 @@ export default function AccountPage() {
       alert('File size exceeds 2MB limit.');
       return;
     }
-
+    setIsDirty(true);
     const reader = new FileReader();
     reader.onload = () => {
       updateAvatarUrl(`${reader.result as string}`);
@@ -132,15 +150,13 @@ export default function AccountPage() {
     reader.readAsDataURL(file);
   };
 
-  const resetPassword = () => {};
-
   const handleSkillSelect = (
     event: SelectChangeEvent<typeof selectedSkills>
   ) => {
     const {
       target: { value },
     } = event;
-
+    setIsDirty(true);
     setSelectedSkills(typeof value === 'string' ? value.split(',') : value);
   };
 
@@ -286,20 +302,45 @@ export default function AccountPage() {
             mb: 2,
           }}>
           <FormControlLabel
-            control={<Checkbox name="withholding_tax" />}
+            control={
+              <Checkbox
+                name="withholding_tax"
+                onChange={(e) =>
+                  setUserDetails({
+                    ...userDetails,
+                    withholding_tax: e.target.checked,
+                  })
+                }
+                checked={userDetails.withholding_tax || false}
+              />
+            }
             label="Withholding tax?"
           />
           <FormControlLabel
-            control={<Checkbox name="withholding_tax" />}
+            control={
+              <Checkbox
+                name="gst_registered"
+                onChange={(e) =>
+                  setUserDetails({
+                    ...userDetails,
+                    gst_registered: e.target.checked,
+                  })
+                }
+                checked={userDetails.gst_registered || false}
+              />
+            }
             label="GST Registered?"
           />
         </FormGroup>
-        <Button type="button" variant="outlined" onClick={resetPassword}>
-          Reset password
-        </Button>
-        <Button type="submit" variant="contained">
-          Save
-        </Button>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+          {/* <Button type="button" variant="outlined" onClick={resetPassword}>
+            Reset password
+          </Button> */}
+          <Button type="submit" variant={isDirty ? 'contained' : 'outlined'}>
+            Save
+          </Button>
+          {isPending && <CircularProgress size={32} />}
+        </Box>
       </Box>
     </ThemeProvider>
   );
