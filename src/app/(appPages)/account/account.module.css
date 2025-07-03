@@ -27,6 +27,10 @@
   opacity: 1;
 }
 
+.hideAvatar {
+  display: none;
+}
+
 .fileInput {
   display: none;
 }

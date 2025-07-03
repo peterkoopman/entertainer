@@ -98,7 +98,7 @@ async function uploadAvatar(avatar: File) {
     const { data, error } = await supabase.storage
       .from('avatars')
       .upload(`${userId}.${fileExt}`, avatar, {
-        cacheControl: '3600',
+        cacheControl: '0',
         upsert: true, // Overwrite if avatar already exists
         contentType: avatar.type,
       });
@@ -137,35 +137,48 @@ export async function updateAccount(
   if (!user.data.user) {
     return { success: false, message: 'Error: User not authenticated' };
   }
-  console.log(formData);
   const avatar = (formData.get('avatar') as File) || null;
 
-  await uploadAvatar(avatar);
+  if (avatar) {
+    try {
+      await uploadAvatar(avatar);
+    } catch (error) {
+      console.error('Error uploading avatar:', error);
+    }
+  }
 
   const skills = formData.get('skillset') as string;
-  const skillsUpdate = await updateSkills(user.data.user?.id, skills);
+  if (skills) {
+    try {
+      await updateSkills(user.data.user?.id, skills);
+    } catch (error) {
+      console.error('Error updating skills:', error);
+    }
+  }
 
-  console.log(skillsUpdate);
-
-  const { data, error } = await supabase.from('userprofile').upsert({
-    id: user.data.user?.id,
-    full_name: formData.get('full_name') as string,
-    phone: formData.get('phone') as string,
-    address: formData.get('address') as string,
-    city: formData.get('city') as string,
-    country: formData.get('country') as string,
-    tax_no: formData.get('tax_no') as string,
-    withholding_tax: formData.get('withholding_tax') === 'on',
-    gst_registered: formData.get('gst_registered') === 'on',
-    skillset: skillsUpdate,
-  });
-
-  console.log(data, error);
-
-  return {
-    success: true,
-    message: `Account details saved successfully`,
-  };
+  try {
+    await supabase.from('userprofile').upsert({
+      id: user.data.user?.id,
+      full_name: formData.get('full_name') as string,
+      phone: formData.get('phone') as string,
+      address: formData.get('address') as string,
+      city: formData.get('city') as string,
+      country: formData.get('country') as string,
+      tax_no: formData.get('tax_no') as string,
+      withholding_tax: formData.get('withholding_tax') === 'on',
+      gst_registered: formData.get('gst_registered') === 'on',
+    });
+    return {
+      success: true,
+      message: `Account details saved successfully.`,
+    };
+  } catch (error) {
+    console.error('Error saving account details:', error);
+    return {
+      success: false,
+      message: `Error saving account details: ${error}`,
+    };
+  }
 }
 
 // Server Action or API route to get signed URL

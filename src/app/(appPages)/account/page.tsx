@@ -1,9 +1,16 @@
 'use client';
 
+import {
+  useState,
+  useEffect,
+  ChangeEvent,
+  useActionState,
+  useContext,
+} from 'react';
 import { useUser } from '@/hooks/useUser';
+import { AvatarContext } from '@/context/AvatarContext';
 import { ThemeProvider } from '@emotion/react';
 import { theme } from '@/utils/muiThemes';
-import { useState, useEffect, ChangeEvent, useActionState } from 'react';
 import { SelectChangeEvent } from '@mui/material';
 import Link from 'next/link';
 import {
@@ -47,6 +54,7 @@ interface Skill {
 
 export default function AccountPage() {
   const { user, profile, loading } = useUser();
+  const { avatarUrl, updateAvatarUrl } = useContext(AvatarContext);
 
   const [userDetails, setUserDetails] = useState<UserDetails>({
     id: user?.id,
@@ -55,7 +63,6 @@ export default function AccountPage() {
   });
   const [skills, setSkills] = useState<Skill[] | null>([]);
   const [selectedSkills, setSelectedSkills] = useState<(string | null)[]>([]);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [formState, formAction] = useActionState<Update, FormData>(
     updateAccount,
     {
@@ -66,7 +73,7 @@ export default function AccountPage() {
 
   useEffect(() => {
     setUserDetails({ ...user, ...profile });
-    setPreviewUrl(profile?.avatar_url || null);
+    updateAvatarUrl(`${profile?.avatar_url}?t=${new Date().getTime()}` || '');
   }, [user, profile]);
 
   useEffect(() => {
@@ -80,10 +87,6 @@ export default function AccountPage() {
       setSkills(data);
     });
   }, []);
-
-  useEffect(() => {
-    if (formState.message) console.log(formState.message);
-  }, [formState]);
 
   if (loading && !user) {
     return <h1>Loading...</h1>;
@@ -110,12 +113,17 @@ export default function AccountPage() {
       return;
     }
 
-    if (file.size > 10 * 1024 * 1024) {
-      // 10MB limit
-      alert('File size exceeds 10MB limit.');
+    if (file.size > 2 * 1024 * 1024) {
+      // 2MB limit
+      alert('File size exceeds 2MB limit.');
       return;
     }
-    setPreviewUrl(URL.createObjectURL(file));
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      updateAvatarUrl(`${reader.result as string}`);
+    };
+    reader.readAsDataURL(file);
   };
 
   const resetPassword = () => {};
@@ -143,12 +151,11 @@ export default function AccountPage() {
           mr: 'auto',
           ml: 'auto',
         }}>
-        <label className={style.avatarContainer}>
-          <Avatar
-            src={previewUrl || userDetails.avatar_url || ''}
-            sx={{ width: 120, height: 120 }}
-            className={style.avatar}
-          />
+        <label
+          className={`${style.avatarContainer} ${
+            !avatarUrl ? style.hideAvatar : ''
+          }`}>
+          <Avatar src={avatarUrl || ''} sx={{ width: 120, height: 120 }} />
           <div className={`${style.avatarOverlay} material-symbols-outlined`}>
             edit
           </div>

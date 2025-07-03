@@ -4,6 +4,7 @@ import Sidebar from '@/components/Sidebar/Sidebar';
 import SidebarState from '@/context/SidebarContext';
 import MobileFooter from '@/components/MobileFooter/MobileFooter';
 import './appPages.css';
+import AvatarState from '@/context/AvatarContext';
 
 export default function PageLayout({
   children,
@@ -12,11 +13,13 @@ export default function PageLayout({
 }>) {
   return (
     <SidebarState>
-      <div className="sidebar-layout">
-        <Sidebar />
-        <main>{children}</main>
-        <MobileFooter />
-      </div>
+      <AvatarState>
+        <div className="sidebar-layout">
+          <Sidebar />
+          <main>{children}</main>
+          <MobileFooter />
+        </div>
+      </AvatarState>
     </SidebarState>
   );
 }
