@@ -101,7 +101,7 @@ export default function AccountPage() {
     setInitialData({ ...user, ...profile });
     if (profile) {
       updateAvatarUrl(profile.avatar_url);
-      updateAvatarPreview(profile.avatar_url);
+      updateAvatarPreview(`${profile.avatar_url}?t=${Date.now()}`);
     }
   }, [user, profile, updateAvatarUrl, updateAvatarPreview]);
 
