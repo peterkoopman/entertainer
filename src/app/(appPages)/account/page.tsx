@@ -55,8 +55,12 @@ interface Skill {
 
 export default function AccountPage() {
   const { user, profile, loading } = useUser();
-  const { avatarUrl, updateAvatarUrl } = useContext(AvatarContext);
+  const { avatarUrl, updateAvatarUrl, avatarPreview, updateAvatarPreview } =
+    useContext(AvatarContext);
 
+  const [skills, setSkills] = useState<Skill[] | null>([]);
+  const [selectedSkills, setSelectedSkills] = useState<(string | null)[]>([]);
+  const [isDirty, setIsDirty] = useState(false);
   const [userDetails, setUserDetails] = useState<UserDetails>({
     id: user?.id,
     email: user?.email,
@@ -67,8 +71,7 @@ export default function AccountPage() {
     email: user?.email,
     ...profile,
   });
-  const [skills, setSkills] = useState<Skill[] | null>([]);
-  const [selectedSkills, setSelectedSkills] = useState<(string | null)[]>([]);
+
   const [formState, formAction, isPending] = useActionState<Update, FormData>(
     updateAccount,
     {
@@ -76,7 +79,6 @@ export default function AccountPage() {
       message: '',
     }
   );
-  const [isDirty, setIsDirty] = useState(false);
 
   useEffect(() => {
     const dirty = Object.keys(userDetails).some(
@@ -97,8 +99,11 @@ export default function AccountPage() {
   useEffect(() => {
     setUserDetails({ ...user, ...profile });
     setInitialData({ ...user, ...profile });
-    updateAvatarUrl(`${profile?.avatar_url}?t=${new Date().getTime()}` || '');
-  }, [user, profile]);
+    if (profile) {
+      updateAvatarUrl(profile.avatar_url);
+      updateAvatarPreview(profile.avatar_url);
+    }
+  }, [user, profile, updateAvatarUrl, updateAvatarPreview]);
 
   useEffect(() => {
     fetchSkills(user?.id).then((data) => {
@@ -142,10 +147,15 @@ export default function AccountPage() {
       alert('File size exceeds 2MB limit.');
       return;
     }
+
+    previewAvatarFile(file);
     setIsDirty(true);
+  };
+
+  const previewAvatarFile = (file: File) => {
     const reader = new FileReader();
     reader.onload = () => {
-      updateAvatarUrl(`${reader.result as string}`);
+      updateAvatarPreview(`${reader.result as string}`);
     };
     reader.readAsDataURL(file);
   };
@@ -173,11 +183,8 @@ export default function AccountPage() {
           mr: 'auto',
           ml: 'auto',
         }}>
-        <label
-          className={`${style.avatarContainer} ${
-            !avatarUrl ? style.hideAvatar : ''
-          }`}>
-          <Avatar src={avatarUrl || ''} sx={{ width: 120, height: 120 }} />
+        <label className={`${style.avatarContainer}`}>
+          <Avatar src={avatarPreview || ''} sx={{ width: 120, height: 120 }} />
           <div className={`${style.avatarOverlay} material-symbols-outlined`}>
             edit
           </div>
@@ -188,6 +195,7 @@ export default function AccountPage() {
             onChange={handleAvatarChange}
           />
         </label>
+        <input type="hidden" name="avatar_url" value={avatarUrl || ''} />
         <TextField
           name="full_name"
           label="Name"
