@@ -1,7 +1,7 @@
 'use client';
 
 import { Avatar, Drawer } from '@mui/material';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { usePathname } from 'next/navigation';
 import SidebarUserPopup from '../Sidebar/SidebarUserPopup/SidebarUserPopup';
 import Nav from '../Nav/Nav';
@@ -9,10 +9,15 @@ import Link from 'next/link';
 import style from './MobileFooter.module.css';
 import ClientSearch from '../ClientSearch/ClientSearch';
 import BookingSearch from '../BookingSearch/BookingSearch';
+import { AvatarContext } from '@/context/AvatarContext';
+import { useUser } from '@/hooks/useUser';
 
 const MobileFooter = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
+  const { avatarPreview } = useContext(AvatarContext);
+  const { profile } = useUser();
+
   const pathname = usePathname();
   useEffect(() => {
     setShowMenu(false);
@@ -32,9 +37,9 @@ const MobileFooter = () => {
       </Drawer>
       <SidebarUserPopup showPopup={showPopup} setShowPopup={setShowPopup} />
       <Avatar
-        src={'/PK_profile_pic.jpg'}
+        src={avatarPreview || ''}
         onClick={() => setShowPopup(!showPopup)}
-        alt={'Peter Koopman'}
+        alt={profile?.full_name}
       />
       <div className={style.homeLink}>
         <Link href="/dashboard">
