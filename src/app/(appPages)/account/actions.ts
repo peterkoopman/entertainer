@@ -180,17 +180,3 @@ export async function updateAccount(
     };
   }
 }
-
-// Server Action or API route to get signed URL
-export async function getSignedAvatarUrl(userId: string, extension: string) {
-  const supabase = await createClient();
-  const { data, error } = await supabase.storage
-    .from('avatars')
-    .createSignedUrl(`${userId}.${extension}`, 60 * 5); // URL valid for 5 minutes
-
-  if (error) {
-    console.error('Error creating signed URL:', error);
-    return null;
-  }
-  return data.signedUrl;
-}
