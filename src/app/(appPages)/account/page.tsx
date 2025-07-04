@@ -53,6 +53,9 @@ interface Skill {
   name: string | null;
 }
 
+const AVATAR_ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif'];
+const AVATAR_MAX_SIZE = 2 * 1024 * 1024; // 2MB
+
 export default function AccountPage() {
   const { user, profile, loading } = useUser();
   const { avatarUrl, updateAvatarUrl, avatarPreview, updateAvatarPreview } =
@@ -79,7 +82,7 @@ export default function AccountPage() {
       message: '',
     }
   );
-
+  // Use dirty form detection to highlight save button
   useEffect(() => {
     const dirty = Object.keys(userDetails).some(
       (key) =>
@@ -95,7 +98,7 @@ export default function AccountPage() {
     }
     if (formState.success) setIsDirty(false);
   }, [formState]);
-
+  // load initial data and avatar preview. Add avatar url to hidden field
   useEffect(() => {
     setUserDetails({ ...user, ...profile });
     setInitialData({ ...user, ...profile });
@@ -104,23 +107,23 @@ export default function AccountPage() {
       updateAvatarPreview(`${profile.avatar_url}?t=${Date.now()}`);
     }
   }, [user, profile, updateAvatarUrl, updateAvatarPreview]);
-
+  // Load all available skills for the skillset select field
+  useEffect(() => {
+    fetchAllSkills().then((data) => {
+      setSkills(data);
+    });
+  }, []);
+  // load selected skills
   useEffect(() => {
     fetchSkills(user?.id).then((data) => {
       if (data) setSelectedSkills(data.map((skill) => skill && skill.name));
     });
   }, [user, profile]);
 
-  useEffect(() => {
-    fetchAllSkills().then((data) => {
-      setSkills(data);
-    });
-  }, []);
-
   if (loading && !user) {
     return <h1>Loading...</h1>;
   }
-
+  // Send non-logged in users to the login screen
   if (!user) {
     return (
       <div>
@@ -131,19 +134,17 @@ export default function AccountPage() {
     );
   }
 
-  // Filename must include user uuid for correct access
+  // Preview changed avatar file
   const handleAvatarChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
-    if (!allowedTypes.includes(file.type)) {
+    if (!AVATAR_ALLOWED_TYPES.includes(file.type)) {
       alert('Only JPEG, PNG, and GIF images are allowed.');
       return;
     }
 
-    if (file.size > 2 * 1024 * 1024) {
-      // 2MB limit
+    if (file.size > AVATAR_MAX_SIZE) {
       alert('File size exceeds 2MB limit.');
       return;
     }
@@ -151,7 +152,7 @@ export default function AccountPage() {
     previewAvatarFile(file);
     setIsDirty(true);
   };
-
+  // Create a dataurl to immediately preview a newly selected avatar
   const previewAvatarFile = (file: File) => {
     const reader = new FileReader();
     reader.onload = () => {
@@ -341,6 +342,7 @@ export default function AccountPage() {
           />
         </FormGroup>
         <Box sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+          {/* TODO: Reset Password */}
           {/* <Button type="button" variant="outlined" onClick={resetPassword}>
             Reset password
           </Button> */}
