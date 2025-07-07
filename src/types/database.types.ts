@@ -9,6 +9,65 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      booking: {
+        Row: {
+          address: string | null;
+          client_id: number | null;
+          created_at: string;
+          date: string | null;
+          deposit: number | null;
+          end_time: string | null;
+          fee: number | null;
+          id: number;
+          job_notes: string | null;
+          load_in: string | null;
+          personnel_notes: string | null;
+          soundcheck: string | null;
+          start_time: string | null;
+          venue_name: string | null;
+        };
+        Insert: {
+          address?: string | null;
+          client_id?: number | null;
+          created_at?: string;
+          date?: string | null;
+          deposit?: number | null;
+          end_time?: string | null;
+          fee?: number | null;
+          id?: number;
+          job_notes?: string | null;
+          load_in?: string | null;
+          personnel_notes?: string | null;
+          soundcheck?: string | null;
+          start_time?: string | null;
+          venue_name?: string | null;
+        };
+        Update: {
+          address?: string | null;
+          client_id?: number | null;
+          created_at?: string;
+          date?: string | null;
+          deposit?: number | null;
+          end_time?: string | null;
+          fee?: number | null;
+          id?: number;
+          job_notes?: string | null;
+          load_in?: string | null;
+          personnel_notes?: string | null;
+          soundcheck?: string | null;
+          start_time?: string | null;
+          venue_name?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'booking_client_id_fkey';
+            columns: ['client_id'];
+            isOneToOne: false;
+            referencedRelation: 'client';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
       client: {
         Row: {
           address: string | null;
@@ -48,6 +107,24 @@ export type Database = {
         };
         Relationships: [];
       };
+      role: {
+        Row: {
+          created_at: string;
+          id: number;
+          role: string | null;
+        };
+        Insert: {
+          created_at?: string;
+          id?: number;
+          role?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          id?: number;
+          role?: string | null;
+        };
+        Relationships: [];
+      };
       skill: {
         Row: {
           created_at: string;
@@ -66,24 +143,57 @@ export type Database = {
         };
         Relationships: [];
       };
-      user_skillset: {
+      user_role: {
         Row: {
           created_at: string;
           id: number;
-          skill_id: number | null;
+          role_id: number | null;
           user_id: string | null;
         };
         Insert: {
           created_at?: string;
           id?: number;
-          skill_id?: number | null;
+          role_id?: number | null;
           user_id?: string | null;
         };
         Update: {
           created_at?: string;
           id?: number;
-          skill_id?: number | null;
+          role_id?: number | null;
           user_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'user_role_role_id_fkey';
+            columns: ['role_id'];
+            isOneToOne: false;
+            referencedRelation: 'role';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'user_role_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'userprofile';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
+      user_skillset: {
+        Row: {
+          created_at: string;
+          skill_id: number;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          skill_id: number;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          skill_id?: number;
+          user_id?: string;
         };
         Relationships: [
           {

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 
-interface Country {
+export interface Country {
   value: string;
   label: string;
 }
@@ -15,7 +15,7 @@ const useCountries = () => {
     const fetchCountries = async () => {
       setIsLoading(true);
       const result = await fetch(
-        'https://valid.layercode.workers.dev/list/countries?format=select&flags=true&value=code',
+        'https://valid.layercode.workers.dev/list/countries?format=select&flags=true&value=code'
       );
 
       const data = await result.json();
