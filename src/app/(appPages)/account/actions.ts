@@ -57,21 +57,27 @@ async function updateSkills(user_id: string | undefined, skills: string) {
   );
 
   // Perform deletions
-  if (toDelete.length > 0 && user_id) {
+  if (toDelete && toDelete.length > 0 && user_id) {
     await supabase
       .from('user_skillset')
       .delete()
       .eq('user_id', user_id)
-      .in('skill_id', toDelete);
+      .in('skill_id', toDelete as number[]);
   }
 
   // Perform additions
-  if (toAdd.length > 0 && user_id) {
+  if (toAdd && toAdd.length > 0 && user_id) {
     const toInsert = toAdd.map((id) => ({
       user_id: user_id,
       skill_id: id,
     }));
-    await supabase.from('user_skillset').insert(toInsert);
+
+    await supabase.from('user_skillset').insert(
+      toInsert as {
+        user_id: string;
+        skill_id: number;
+      }[]
+    );
   }
 
   return {
