@@ -10,7 +10,6 @@ import {
 } from '../actions';
 import { theme } from '@/utils/muiThemes';
 import {
-  Autocomplete,
   Box,
   Button,
   CircularProgress,
@@ -164,7 +163,7 @@ export default function ClientPage() {
           name="address"
           label="Address"
           multiline
-          maxRows={3}
+          rows={3}
           value={formValues?.address || ''}
           onChange={(e) =>
             setFormValues({ ...formValues, address: e.target.value })
@@ -178,17 +177,46 @@ export default function ClientPage() {
             setFormValues({ ...formValues, city: e.target.value })
           }
         />
-        <Autocomplete
+        <TextField
+          name="country"
+          label="Country"
+          select
+          value={country?.value || ''}
+          onChange={(e) => {
+            setCountry({
+              value: e.target.value,
+              label:
+                countries?.find((country) => country?.value === e.target.value)
+                  ?.label || '',
+            });
+            setFormValues({ ...formValues, country: e.target.value });
+          }}>
+          {countries.map((country) => (
+            <MenuItem key={country.value} value={country.value}>
+              {country.label}
+            </MenuItem>
+          ))}
+        </TextField>
+        {/* <Autocomplete
           options={countries}
           getOptionLabel={(option) => option.label}
-          renderInput={(params) => <TextField {...params} label="Country" />}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Country"
+              slotProps={{
+                ...params.inputProps,
+                autocomplete: 'none', // disable autocomplete and autofill
+              }}
+            />
+          )}
           value={country || { value: '', label: '' }}
           onChange={(event, newValue) => {
             setCountry(newValue || country);
             setFormValues({ ...formValues, country: newValue?.value });
           }}
-        />
-        <input type="hidden" name="country" value={country?.value || ''} />
+        /> */}
+        {/* <input type="hidden" name="country" value={country?.value || ''} /> */}
         <TextField
           name="notes"
           label="Notes"
