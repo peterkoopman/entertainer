@@ -181,15 +181,14 @@ export default function ClientPage() {
         <Autocomplete
           options={countries}
           getOptionLabel={(option) => option.label}
-          renderInput={(params) => (
-            <TextField {...params} name="country" label="Country" />
-          )}
+          renderInput={(params) => <TextField {...params} label="Country" />}
           value={country || { value: '', label: '' }}
           onChange={(event, newValue) => {
             setCountry(newValue || country);
             setFormValues({ ...formValues, country: newValue?.value });
           }}
         />
+        <input type="hidden" name="country" value={country?.value || ''} />
         <TextField
           name="notes"
           label="Notes"
