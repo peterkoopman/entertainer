@@ -1,6 +1,12 @@
 'use server';
 
 import { createClient } from '@/utils/supabase/server';
+import { redirect } from 'next/navigation';
+
+export interface UpdateClient {
+  success: boolean;
+  message?: string;
+}
 
 export async function getClient(id: string | undefined) {
   const supabase = await createClient();
@@ -19,7 +25,6 @@ export async function getClient(id: string | undefined) {
     console.error('Error fetching client:', error.message);
     return null;
   }
-
   return data;
 }
 
@@ -41,4 +46,41 @@ export async function getBookingsForClient(id: string | undefined) {
   }
 
   return data;
+}
+
+export async function saveClient(prevState: UpdateClient, formData: FormData) {
+  const supabase = await createClient();
+  const clientId = formData.get('id') ? Number(formData.get('id')) : undefined;
+
+  const { data, error } = await supabase
+    .from('client')
+    .upsert({
+      id: clientId,
+      name: formData.get('name') as string,
+      email: formData.get('email') as string,
+      phone: formData.get('phone') as string,
+      address: formData.get('address') as string,
+      city: formData.get('city') as string,
+      country: formData.get('country') as string,
+      notes: formData.get('notes') as string,
+    })
+    .select();
+
+  if (error) {
+    console.error('Error saving client:', error.message);
+    return {
+      success: false,
+      message: `Error saving client: ${error}`,
+    };
+  }
+
+  // If it's a new client (i.e. no client id), redirect to the new client page
+  if (clientId) {
+    return {
+      success: true,
+      message: `Client updated successfully.`,
+    };
+  } else {
+    return redirect(`/clients/${data[0].id}`);
+  }
 }

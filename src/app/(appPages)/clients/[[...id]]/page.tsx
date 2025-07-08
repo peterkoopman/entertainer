@@ -1,13 +1,19 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useActionState } from 'react';
 import useCountries from '@/hooks/useCountries';
-import { getBookingsForClient, getClient } from '../actions';
+import {
+  getBookingsForClient,
+  getClient,
+  UpdateClient,
+  saveClient,
+} from '../actions';
 import { theme } from '@/utils/muiThemes';
 import {
   Autocomplete,
   Box,
   Button,
+  CircularProgress,
   MenuItem,
   TextField,
   ThemeProvider,
@@ -24,6 +30,7 @@ interface Client {
   address?: string | null;
   city?: string | null;
   country?: string | null;
+  notes?: string | null;
   created_at?: string | null;
   updated_at?: string | null;
 }
@@ -37,19 +44,43 @@ interface Booking {
 }
 
 export default function ClientPage() {
-  const [formValues, setFormValues] = useState<Client | null>(null);
+  const [clientExists, setClientExists] = useState(true);
+  const [formValues, setFormValues] = useState<Client | Record<string, never>>(
+    {}
+  );
+  const [initialData, setInitialData] = useState<Client | null>(null);
+  const [isDirty, setIsDirty] = useState(false);
   const [country, setCountry] = useState<
     { value: string; label: string } | undefined
   >({ value: '', label: '' });
   const [bookings, setBookings] = useState<Booking[] | []>([]);
+
   const params = useParams<{ id: string }>();
   const { countries } = useCountries();
 
+  const [formState, formAction, isPending] = useActionState<
+    UpdateClient,
+    FormData
+  >(saveClient, {
+    success: false,
+    message: '',
+  });
+
   useEffect(() => {
-    getClient(params?.id).then((data) => {
-      setFormValues(data);
-      setCountry(countries.find((country) => country.value === data?.country));
-    });
+    if (params?.id) {
+      getClient(params?.id).then((data) => {
+        if (data === null) {
+          setClientExists(false);
+          return;
+        }
+        setClientExists(true);
+        setFormValues(data);
+        setInitialData(data);
+        setCountry(
+          countries.find((country) => country.value === data?.country)
+        );
+      });
+    }
   }, [params?.id, countries]);
 
   useEffect(() => {
@@ -60,17 +91,43 @@ export default function ClientPage() {
     });
   }, [params?.id]);
 
+  useEffect(() => {
+    if (formState) {
+      console.log(formState.message);
+    }
+    if (formState.success) setIsDirty(false);
+  }, [formState]);
+
+  // Use dirty form detection to highlight save button
+  useEffect(() => {
+    const dirty = Object.keys(formValues).some(
+      (key) =>
+        formValues?.[key as keyof Client] !== initialData?.[key as keyof Client]
+    );
+    setIsDirty(dirty);
+  }, [initialData, formValues]);
+
+  if (!clientExists) {
+    return (
+      <ThemeProvider theme={theme}>
+        <h2>No client found</h2>
+      </ThemeProvider>
+    );
+  }
+
   return (
     <ThemeProvider theme={theme}>
       <h1>Client: {formValues?.name}</h1>
       <Box
         component="form"
+        action={formAction}
         sx={{
           maxWidth: 720,
           width: 1,
           mr: 'auto',
           ml: 'auto',
         }}>
+        <input type="hidden" name="id" value={formValues?.id || ''} />
         <TextField
           name="name"
           label="Name"
@@ -124,12 +181,24 @@ export default function ClientPage() {
         <Autocomplete
           options={countries}
           getOptionLabel={(option) => option.label}
-          renderInput={(params) => <TextField {...params} label="Country" />}
+          renderInput={(params) => (
+            <TextField {...params} name="country" label="Country" />
+          )}
           value={country || { value: '', label: '' }}
           onChange={(event, newValue) => {
             setCountry(newValue || country);
             setFormValues({ ...formValues, country: newValue?.value });
           }}
+        />
+        <TextField
+          name="notes"
+          label="Notes"
+          multiline
+          maxRows={3}
+          value={formValues?.notes || ''}
+          onChange={(e) =>
+            setFormValues({ ...formValues, notes: e.target.value })
+          }
         />
         {bookings.length > 0 && (
           <TextField name="bookings" label="Bookings" select value="">
@@ -141,15 +210,18 @@ export default function ClientPage() {
             ))}
           </TextField>
         )}
-        <Button type="submit" variant="contained">
-          Save
-        </Button>
-        <Button type="button" variant="outlined">
-          Delete
-        </Button>
-        <Button type="button" variant="contained">
-          New Booking
-        </Button>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+          <Button type="button" variant="contained">
+            New Booking
+          </Button>
+          <Button type="button" variant="outlined">
+            Delete
+          </Button>
+          <Button type="submit" variant={isDirty ? 'contained' : 'outlined'}>
+            Save
+          </Button>
+          {isPending && <CircularProgress size={32} />}
+        </Box>
       </Box>
     </ThemeProvider>
   );
