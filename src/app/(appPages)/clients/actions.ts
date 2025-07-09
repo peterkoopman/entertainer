@@ -84,3 +84,34 @@ export async function saveClient(prevState: UpdateClient, formData: FormData) {
     return redirect(`/clients/${data[0].id}`);
   }
 }
+
+export async function deleteClient(clientId: number | undefined) {
+  const supabase = await createClient();
+
+  if (!clientId) return redirect('/clients');
+
+  const { error } = await supabase.from('client').delete().eq('id', clientId);
+
+  return {
+    success: !error,
+    message: error
+      ? `Error deleting client: ${error}`
+      : `Client deleted successfully.`,
+  };
+}
+
+export async function createNewBooking(clientId: number | undefined) {
+  const supabase = await createClient();
+  if (!clientId) return null;
+  const { data, error } = await supabase
+    .from('booking')
+    .insert({ client_id: clientId })
+    .select();
+
+  console.log(data, error);
+  if (error) {
+    console.error('Error creating new booking:', error.message);
+    return null;
+  }
+  redirect(`/booking/${data && data.length > 0 && data?.[0].id}`);
+}

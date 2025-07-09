@@ -1,12 +1,14 @@
 'use client';
 
-import { useEffect, useState, useActionState } from 'react';
+import { useEffect, useState, useActionState, MouseEvent } from 'react';
 import useCountries from '@/hooks/useCountries';
 import {
   getBookingsForClient,
   getClient,
   UpdateClient,
   saveClient,
+  deleteClient,
+  createNewBooking,
 } from '../actions';
 import { theme } from '@/utils/muiThemes';
 import {
@@ -17,7 +19,7 @@ import {
   TextField,
   ThemeProvider,
 } from '@mui/material';
-import { useParams } from 'next/navigation';
+import { redirect, useParams } from 'next/navigation';
 import Link from 'next/link';
 
 interface Client {
@@ -91,9 +93,7 @@ export default function ClientPage() {
   }, [params?.id]);
 
   useEffect(() => {
-    if (formState) {
-      console.log(formState.message);
-    }
+    // Reset save button highlight on Save
     if (formState.success) setIsDirty(false);
   }, [formState]);
 
@@ -105,6 +105,27 @@ export default function ClientPage() {
     );
     setIsDirty(dirty);
   }, [initialData, formValues]);
+
+  const handleDelete = (e: MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    if (params?.id) {
+      if (confirm('Are you sure you want to delete this client?')) {
+        deleteClient(Number(params?.id));
+        redirect('/clients');
+      }
+    } else {
+      alert('No client found');
+    }
+  };
+
+  const handleNewBooking = async (e: MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    if (params?.id) {
+      await createNewBooking(Number(params.id));
+    } else {
+      alert('No client found');
+    }
+  };
 
   if (!clientExists) {
     return (
@@ -212,16 +233,16 @@ export default function ClientPage() {
             {bookings.map((booking) => (
               <MenuItem key={booking.id}>
                 <Link
-                  href={`/bookings/${booking.id}`}>{`${booking.date}, ${booking.start_time} - ${booking.venue_name}`}</Link>
+                  href={`/booking/${booking.id}`}>{`${booking.date}, ${booking.start_time} - ${booking.venue_name}`}</Link>
               </MenuItem>
             ))}
           </TextField>
         )}
         <Box sx={{ display: 'flex', justifyContent: 'flex-start' }}>
-          <Button type="button" variant="contained">
+          <Button type="button" variant="contained" onClick={handleNewBooking}>
             New Booking
           </Button>
-          <Button type="button" variant="outlined">
+          <Button type="button" variant="outlined" onClick={handleDelete}>
             Delete
           </Button>
           <Button type="submit" variant={isDirty ? 'contained' : 'outlined'}>
