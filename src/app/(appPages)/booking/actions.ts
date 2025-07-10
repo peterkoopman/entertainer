@@ -14,7 +14,7 @@ export async function getBooking(id: number | undefined) {
 
   const { data, error } = await supabase
     .from('booking')
-    .select('*')
+    .select('*, client(name, company)')
     .eq('id', id)
     .single();
 

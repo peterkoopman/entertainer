@@ -32,6 +32,7 @@ import {
 } from '../actions';
 import dayjs from 'dayjs';
 import 'dayjs/locale/en-nz';
+import Link from 'next/link';
 interface Booking {
   id?: number | null;
   client_id?: number | null;
@@ -46,9 +47,13 @@ interface Booking {
   job_notes?: string | null;
   personnel_notes?: string | null;
   setup_id?: number | null;
-  status_id?: number | null;
   type_id?: number | null;
+  status_id?: number | null;
   tax_type_id?: number | null;
+  client?: {
+    name: string | null;
+    company: string | null;
+  } | null;
 }
 
 interface DropdownOption {
