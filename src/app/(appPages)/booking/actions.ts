@@ -34,14 +34,19 @@ export async function saveBooking(prevData: UpdateBooking, formData: FormData) {
     .from('booking')
     .upsert({
       id: id,
-      client_id: Number(formData.get('client_id')),
-      setup_id: Number(formData.get('setup_id')),
-      type_id: Number(formData.get('type_id')),
-      status_id: Number(formData.get('status_id')),
+      client_id: Number(formData.get('client_id')) || null,
+      setup_id: Number(formData.get('setup_id')) || null,
+      type_id: Number(formData.get('type_id')) || null,
+      status_id: Number(formData.get('status_id')) || null,
+      tax_type_id: Number(formData.get('tax_type_id')) || null,
       date: formData.get('date') as string,
+      load_in: formData.get('load_in') as string,
       start_time: formData.get('start_time') as string,
       end_time: formData.get('end_time') as string,
-      notes: formData.get('notes') as string,
+      fee: Number(formData.get('fee')) || null,
+      deposit: Number(formData.get('deposit')) || null,
+      job_notes: formData.get('job_notes') as string,
+      personnel_notes: formData.get('personnel_notes') as string,
     })
     .select();
 

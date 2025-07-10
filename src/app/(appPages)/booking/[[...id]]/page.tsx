@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useEffect, useState } from 'react';
+import { useActionState, useEffect, useState, useCallback } from 'react';
 import { ThemeProvider } from '@emotion/react';
 import { theme } from '@/utils/muiThemes';
 import {
@@ -121,6 +121,17 @@ export default function BookingPage() {
     if (formState.success) setIsDirty(false);
   }, [formState]);
 
+  const wrappedFormAction = useCallback(
+    async (formData: FormData) => {
+      formData.set('date', booking?.date as string);
+      formData.set('load_in', booking?.load_in as string);
+      formData.set('start_time', booking?.start_time as string);
+      formData.set('end_time', booking?.end_time as string);
+      formAction(formData);
+    },
+    [booking, formAction]
+  );
+
   if (!bookingId) {
     return (
       <ThemeProvider theme={theme}>
@@ -136,6 +147,11 @@ export default function BookingPage() {
         <h2>Client: {`Peter Koopman, Scribble Design Ltd`}</h2>
         <Box component="form" className={style.form} action={formAction}>
           <input type="hidden" name="id" value={booking?.id || ''} />
+          <input
+            type="hidden"
+            name="client_id"
+            value={booking?.client_id || ''}
+          />
           <TextField
             name="venue"
             label="Venue"
@@ -162,6 +178,7 @@ export default function BookingPage() {
                 <FormControl sx={{ mt: 2, mb: 2 }}>
                   <DatePicker
                     label="Date"
+                    format="DD/MM/YYYY"
                     value={dayjs(booking?.date)}
                     onChange={(e) => {
                       setBooking({
@@ -208,7 +225,7 @@ export default function BookingPage() {
                   />
                 </FormControl>
                 <TextField
-                  name="setup"
+                  name="setup_id"
                   label="Setup"
                   select
                   value={Number(booking?.setup_id) || ''}
@@ -257,7 +274,7 @@ export default function BookingPage() {
                 }}
               />
               <TextField
-                name="taxtype"
+                name="tax_type_id"
                 label="Tax type"
                 select
                 value={Number(booking?.tax_type_id) || ''}
@@ -274,7 +291,7 @@ export default function BookingPage() {
                 ))}
               </TextField>
               <TextField
-                name="type"
+                name="type_id"
                 label="Type"
                 select
                 value={Number(booking?.type_id) || ''}
@@ -288,7 +305,7 @@ export default function BookingPage() {
                 ))}
               </TextField>
               <TextField
-                name="status"
+                name="status_id"
                 label="Status"
                 select
                 value={Number(booking?.status_id) || ''}
@@ -304,7 +321,7 @@ export default function BookingPage() {
             </FormGroup>
           </Box>
           <TextField
-            name="jobdetail"
+            name="job_notes"
             label="Job details"
             multiline
             rows={3}
@@ -314,7 +331,7 @@ export default function BookingPage() {
             }
           />
           <TextField
-            name="performernotes"
+            name="personnel_notes"
             label="Performer info"
             multiline
             rows={3}
