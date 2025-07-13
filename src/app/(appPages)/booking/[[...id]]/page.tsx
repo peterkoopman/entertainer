@@ -20,8 +20,9 @@ import {
 } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import style from './booking.module.css';
-import { useParams } from 'next/navigation';
+import { redirect, useParams } from 'next/navigation';
 import {
+  Booking,
   getBooking,
   saveBooking,
   UpdateBooking,
@@ -29,32 +30,11 @@ import {
   getStatuses,
   getTaxTypes,
   getTypes,
+  deleteBooking,
 } from '../actions';
 import dayjs from 'dayjs';
 import 'dayjs/locale/en-nz';
 import Link from 'next/link';
-interface Booking {
-  id?: number | null;
-  client_id?: number | null;
-  date?: string | null;
-  load_in?: string | null;
-  start_time?: string | null;
-  end_time?: string | null;
-  fee?: number | null;
-  deposit?: number | null;
-  venue_name?: string | null;
-  address?: string | null;
-  job_notes?: string | null;
-  personnel_notes?: string | null;
-  setup_id?: number | null;
-  type_id?: number | null;
-  status_id?: number | null;
-  tax_type_id?: number | null;
-  client?: {
-    name: string | null;
-    company: string | null;
-  } | null;
-}
 
 interface DropdownOption {
   id: number | null;
@@ -99,8 +79,12 @@ export default function BookingPage() {
   useEffect(() => {
     if (bookingId) {
       getBooking(bookingId).then((data) => {
-        setBooking(data);
-        setInitialData(data);
+        if (data === null) {
+          redirect(`/booking/${bookingId}/not-found.tsx`);
+        } else {
+          setBooking(data);
+          setInitialData(data);
+        }
       });
     }
   }, [bookingId]);
@@ -123,19 +107,31 @@ export default function BookingPage() {
 
   const wrappedFormAction = useCallback(
     async (formData: FormData) => {
-      formData.set('date', booking?.date as string);
-      formData.set('load_in', booking?.load_in as string);
-      formData.set('start_time', booking?.start_time as string);
-      formData.set('end_time', booking?.end_time as string);
+      formData.set('date', booking?.date || '');
+      formData.set('load_in', booking?.load_in || '');
+      formData.set('start_time', booking?.start_time || '');
+      formData.set('end_time', booking?.end_time || '');
       formAction(formData);
     },
     [booking, formAction]
   );
 
+  const handleDelete = async () => {
+    if (!bookingId) return;
+    if (confirm('Are you sure you want to delete this booking?')) {
+      await deleteBooking(bookingId).then((data) => {
+        console.log(data);
+      });
+    }
+  };
+
   if (!bookingId) {
     return (
       <ThemeProvider theme={theme}>
-        <h2>No booking found</h2>
+        <h2>That booking does not exist.</h2>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+          <Link href="/">Home</Link>
+        </Box>
       </ThemeProvider>
     );
   }
@@ -144,8 +140,15 @@ export default function BookingPage() {
     <ThemeProvider theme={theme}>
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <h1>Booking</h1>
-        <h2>Client: {`Peter Koopman, Scribble Design Ltd`}</h2>
-        <Box component="form" className={style.form} action={formAction}>
+        <h2>
+          Client:{' '}
+          <Link href={`/clients/${booking?.client_id || ''}`}>{`${
+            booking?.client?.name || ''
+          }${booking?.client?.name && booking?.client?.company ? ', ' : ''}${
+            booking?.client?.company || ''
+          }`}</Link>
+        </h2>
+        <Box component="form" className={style.form} action={wrappedFormAction}>
           <input type="hidden" name="id" value={booking?.id || ''} />
           <input
             type="hidden"
@@ -153,7 +156,7 @@ export default function BookingPage() {
             value={booking?.client_id || ''}
           />
           <TextField
-            name="venue"
+            name="venue_name"
             label="Venue"
             value={booking?.venue_name || ''}
             onChange={(e) =>
@@ -344,7 +347,7 @@ export default function BookingPage() {
             <Button type="submit" variant={isDirty ? 'contained' : 'outlined'}>
               Save
             </Button>
-            <Button type="button" variant="outlined">
+            <Button type="button" variant="outlined" onClick={handleDelete}>
               Delete
             </Button>
             {isPending && <CircularProgress size={32} />}
