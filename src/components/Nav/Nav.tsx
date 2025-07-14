@@ -7,7 +7,7 @@ const Nav = ({ ...props }) => {
   const navItems = [
     { label: 'Dashboard', path: '/', icon: 'space_dashboard' },
     { label: 'Calendar', path: '/calendar', icon: 'calendar_month' },
-    { label: 'Clients', path: '/clients', icon: 'face' },
+    { label: 'New client', path: '/clients', icon: 'face' },
     { label: 'Personnel', path: '/personnel', icon: 'group' },
   ];
   return (
