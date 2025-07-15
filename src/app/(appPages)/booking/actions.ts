@@ -1,7 +1,6 @@
 'use server';
 
 import { createClient } from '@/utils/supabase/server';
-import { notFound } from 'next/navigation';
 
 export interface UpdateBooking {
   success: boolean;
@@ -43,6 +42,10 @@ export async function getBooking(id: number | undefined) {
     .single();
 
   console.log(`Data: ${JSON.stringify(data)}`);
+
+  if (error) {
+    return null;
+  }
 
   // if (data === null) {
   //   return null;
