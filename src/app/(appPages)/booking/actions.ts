@@ -44,16 +44,16 @@ export async function getBooking(id: number | undefined) {
 
   console.log(`Data: ${JSON.stringify(data)}`);
 
-  if (data === null) {
-    return null;
-  } else if (error) {
-    console.log(`Error: ${JSON.stringify(error)}`);
+  // if (data === null) {
+  //   return null;
+  // } else if (error) {
+  //   console.log(`Error: ${JSON.stringify(error)}`);
 
-    return {
-      success: false,
-      message: `Error fetching booking: ${error.message}`,
-    };
-  }
+  //   return {
+  //     success: false,
+  //     message: `Error fetching booking: ${error.message}`,
+  //   };
+  // }
 
   return data;
 }
