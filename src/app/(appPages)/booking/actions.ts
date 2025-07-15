@@ -2,11 +2,12 @@
 
 import { createClient } from '@/utils/supabase/server';
 
-export interface UpdateBooking {
-  success: boolean;
-  message?: string;
-}
+export type BookingResult =
+  | { success: true; data?: Booking }
+  | { success: true; data?: null }
+  | { success: false; message: string };
 
+export type UpdateResult = { success: boolean; message: string };
 export interface Booking {
   id?: number;
   client_id?: number | null;
@@ -41,27 +42,31 @@ export async function getBooking(id: number | undefined) {
     .eq('id', id)
     .single();
 
-  console.log(`Data: ${JSON.stringify(data)}`);
+  console.log(data);
 
   if (error) {
-    return null;
+    console.log(`Error: ${JSON.stringify(error)}`);
+
+    return {
+      success: false,
+      message: `Error fetching booking: ${error.message}`,
+    } as BookingResult;
   }
 
-  // if (data === null) {
-  //   return null;
-  // } else if (error) {
-  //   console.log(`Error: ${JSON.stringify(error)}`);
+  if (data === null) {
+    return {
+      success: true,
+      data: null,
+    } as BookingResult;
+  }
 
-  //   return {
-  //     success: false,
-  //     message: `Error fetching booking: ${error.message}`,
-  //   };
-  // }
-
-  return data;
+  return {
+    success: true,
+    data: data as Booking,
+  } as BookingResult;
 }
 
-export async function saveBooking(prevData: UpdateBooking, formData: FormData) {
+export async function saveBooking(prevData: UpdateResult, formData: FormData) {
   const supabase = await createClient();
   const id = formData.get('id') ? Number(formData.get('id')) : undefined;
   console.log(formData);

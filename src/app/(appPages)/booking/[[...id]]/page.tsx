@@ -6,6 +6,8 @@ import {
   getStatuses,
   getTypes,
   getTaxTypes,
+  Booking,
+  BookingResult,
 } from '../actions';
 import BookingForm from '../BookingForm';
 
@@ -16,7 +18,15 @@ export default async function BookingPage({
 }) {
   const { id } = await params;
   const bookingId = Number(id);
-  const booking = await getBooking(bookingId);
+  let booking: Booking | null | undefined;
+
+  const result: BookingResult | null = await getBooking(bookingId);
+
+  if (result && result.success) {
+    booking = result.data;
+  } else {
+    booking = null;
+  }
 
   const setups = await getSetups();
   const statuses = await getStatuses();
@@ -25,7 +35,7 @@ export default async function BookingPage({
 
   return (
     <BookingForm
-      booking={booking}
+      booking={booking as Booking | null}
       setups={setups}
       statuses={statuses}
       types={types}
