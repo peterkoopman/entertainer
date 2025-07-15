@@ -42,10 +42,8 @@ export async function getBooking(id: number | undefined) {
     .eq('id', id)
     .single();
 
-  console.log(data);
-
   if (error) {
-    console.log(`Error: ${JSON.stringify(error)}`);
+    console.error(`Error: ${JSON.stringify(error)}`);
 
     return {
       success: false,
@@ -69,8 +67,7 @@ export async function getBooking(id: number | undefined) {
 export async function saveBooking(prevData: UpdateResult, formData: FormData) {
   const supabase = await createClient();
   const id = formData.get('id') ? Number(formData.get('id')) : undefined;
-  console.log(formData);
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from('booking')
     .upsert({
       id: id || undefined,
@@ -99,7 +96,7 @@ export async function saveBooking(prevData: UpdateResult, formData: FormData) {
       message: `Error saving booking: ${error}`,
     };
   }
-  console.log(data);
+
   return {
     success: true,
     message: `Booking updated successfully.`,

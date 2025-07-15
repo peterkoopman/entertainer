@@ -20,7 +20,7 @@ import {
 } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import style from './booking.module.css';
-import { Booking, saveBooking, UpdateBooking, deleteBooking } from './actions';
+import { Booking, saveBooking, UpdateResult, deleteBooking } from './actions';
 import dayjs from 'dayjs';
 import 'dayjs/locale/en-nz';
 import Link from 'next/link';
@@ -47,7 +47,7 @@ export default function BookingForm({
   taxTypes,
 }: BookingFormProps) {
   const [formState, formAction, isPending] = useActionState<
-    UpdateBooking,
+    UpdateResult,
     FormData
   >(saveBooking, {
     success: false,
