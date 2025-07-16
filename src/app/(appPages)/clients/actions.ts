@@ -31,14 +31,11 @@ export interface Country {
 }
 
 export type RequestResult<T> =
-  | { success: true; data?: T }
-  | { success: true; data?: null }
+  | { success: true; data: T }
+  | { success: true; data: null }
   | { success: false; message: string };
 
-export interface UpdateClient {
-  success: boolean;
-  message?: string;
-}
+export type SaveResult = { success: boolean; message: string };
 
 export async function getClient(
   id: number | undefined
@@ -56,7 +53,7 @@ export async function getClient(
     .from('client')
     .select('*')
     .eq('id', id)
-    .single();
+    .single<Client>();
 
   if (error) {
     console.error('Error fetching client:', error.message);
@@ -117,7 +114,7 @@ export async function getBookingsForClient(
   };
 }
 
-export async function saveClient(prevState: UpdateClient, formData: FormData) {
+export async function saveClient(prevState: SaveResult, formData: FormData) {
   const supabase = await createClient();
   const clientId = formData.get('id') ? Number(formData.get('id')) : undefined;
 
@@ -144,14 +141,14 @@ export async function saveClient(prevState: UpdateClient, formData: FormData) {
   }
 
   // If it's a new client (i.e. no client id), redirect to the new client page
-  if (clientId) {
-    return {
-      success: true,
-      message: `Client updated successfully.`,
-    };
-  } else {
-    return redirect(`/clients/${data[0].id}`);
+  if (!clientId) {
+    redirect(`/clients/${data[0].id}`);
   }
+
+  return {
+    success: true,
+    message: '',
+  };
 }
 
 export async function deleteClient(clientId: number | undefined) {
