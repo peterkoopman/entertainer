@@ -3,34 +3,90 @@
 import { createClient } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
 
+export interface Client {
+  id?: number | null;
+  name?: string | null;
+  email?: string | null;
+  company?: string | null;
+  phone?: string | null;
+  address?: string | null;
+  city?: string | null;
+  country?: string | null;
+  notes?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+}
+
+export interface Booking {
+  id: number;
+  date?: string | null;
+  venue_name?: string | null;
+  start_time?: string | null;
+  end_time?: string | null;
+}
+
+export interface Country {
+  value: string;
+  label: string;
+}
+
+export type RequestResult<T> =
+  | { success: true; data?: T }
+  | { success: true; data?: null }
+  | { success: false; message: string };
+
 export interface UpdateClient {
   success: boolean;
   message?: string;
 }
 
-export async function getClient(id: string | undefined) {
+export async function getClient(
+  id: number | undefined
+): Promise<RequestResult<Client>> {
   const supabase = await createClient();
 
   if (!id) {
-    return null;
+    return {
+      success: false,
+      message: 'No client ID provided.',
+    };
   }
 
   const { data, error } = await supabase
     .from('client')
     .select('*')
-    .eq('id', Number(id))
+    .eq('id', id)
     .single();
 
   if (error) {
     console.error('Error fetching client:', error.message);
-    return null;
+    return {
+      success: false,
+      message: `Error fetching client: ${error}`,
+    };
   }
-  return data;
+
+  if (!data) {
+    return {
+      success: true,
+      data: null,
+    };
+  }
+
+  return {
+    success: true,
+    data: data,
+  };
 }
 
-export async function getBookingsForClient(id: string | undefined) {
+export async function getBookingsForClient(
+  id: number | undefined
+): Promise<RequestResult<Booking[]>> {
   if (!id) {
-    return null;
+    return {
+      success: false,
+      message: 'No client ID provided.',
+    };
   }
 
   const supabase = await createClient();
@@ -38,14 +94,27 @@ export async function getBookingsForClient(id: string | undefined) {
   const { data, error } = await supabase
     .from('booking')
     .select('id, date, venue_name, start_time, end_time')
-    .eq('client_id', Number(id));
+    .eq('client_id', id);
 
   if (error) {
     console.error('Error fetching bookings:', error.message);
-    return null;
+    return {
+      success: false,
+      message: `Error fetching bookings: ${error}`,
+    };
   }
 
-  return data;
+  if (!data) {
+    return {
+      success: true,
+      data: null,
+    };
+  }
+
+  return {
+    success: true,
+    data: data,
+  };
 }
 
 export async function saveClient(prevState: UpdateClient, formData: FormData) {
@@ -114,4 +183,13 @@ export async function createNewBooking(clientId: number | undefined) {
     return null;
   }
   redirect(`/booking/${data && data.length > 0 && data?.[0].id}`);
+}
+
+export async function getCountries(): Promise<Country[]> {
+  const result = await fetch(
+    'https://valid.layercode.workers.dev/list/countries?format=select&flags=true&value=code'
+  );
+
+  const data = await result.json();
+  return data.countries;
 }
