@@ -53,17 +53,17 @@ export async function getClient(
     .from('client')
     .select('*')
     .eq('id', id)
-    .single<Client>();
+    .maybeSingle<Client | null>();
 
   if (error) {
-    console.error('Error fetching client:', error.message);
+    console.error(`Error fetching client: ${JSON.stringify(error)}`);
     return {
       success: false,
-      message: `Error fetching client: ${error}`,
+      message: `Error fetching client: ${error.message}`,
     };
   }
 
-  if (!data) {
+  if (data === null) {
     return {
       success: true,
       data: null,

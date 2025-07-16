@@ -1,5 +1,6 @@
 'use server';
 
+import Link from 'next/link';
 import {
   getBookingsForClient,
   getClient,
@@ -7,8 +8,6 @@ import {
   RequestResult,
   Client,
 } from '../actions';
-import { theme } from '@/utils/muiThemes';
-import { ThemeProvider } from '@mui/material';
 import ClientForm from '../ClientForm';
 
 export default async function ClientPage({
@@ -30,6 +29,7 @@ export default async function ClientPage({
   }
   const clientId = Number(id);
   const clientData: RequestResult<Client> | null = await getClient(clientId);
+
   const bookingsResult = await getBookingsForClient(clientId);
   if (bookingsResult.success === false) {
     return <h2>Error getting bookings for client</h2>;
@@ -38,20 +38,23 @@ export default async function ClientPage({
 
   const client = clientData.success && clientData.data;
 
-  if (client) {
+  if (clientData.success === true && clientData.data === null) {
     return (
-      <ClientForm
-        client={client}
-        countries={countries}
-        bookings={bookings || []}
-        key={clientId}
-      />
+      <div style={{ textAlign: 'center' }}>
+        <h2>Client not found</h2>
+        <p>
+          <Link href="/">Home</Link>
+        </p>
+      </div>
     );
   }
 
   return (
-    <ThemeProvider theme={theme}>
-      <h2>No client found</h2>
-    </ThemeProvider>
+    <ClientForm
+      client={client as Client | null}
+      countries={countries}
+      bookings={bookings || []}
+      key={clientId}
+    />
   );
 }

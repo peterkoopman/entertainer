@@ -72,7 +72,7 @@ const ClientForm = ({ client, countries, bookings }: ClientFormProps) => {
 
   return (
     <ThemeProvider theme={theme}>
-      <h1>Client: {formValues?.name}</h1>
+      <h1>{formValues?.id ? `Client: ${formValues?.name}` : 'New Client'}</h1>
       <Box
         component="form"
         action={formAction}
