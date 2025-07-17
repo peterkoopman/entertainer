@@ -10,7 +10,7 @@ import {
   MenuItem,
   TextField,
 } from '@mui/material';
-import { saveClient, deleteClient, createNewBooking, Country } from './actions';
+import { saveClient, deleteClient, Country } from './actions';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { Client, Booking } from './actions';
@@ -64,7 +64,7 @@ const ClientForm = ({ client, countries, bookings }: ClientFormProps) => {
   const handleNewBooking = async (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     if (client?.id) {
-      await createNewBooking(Number(client.id));
+      redirect(`/booking/new/${client?.id}`);
     } else {
       alert('No client found');
     }

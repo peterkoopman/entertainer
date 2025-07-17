@@ -1,6 +1,7 @@
 'use server';
 
 import { createClient } from '@/utils/supabase/server';
+import { redirect } from 'next/navigation';
 
 export type BookingResult =
   | { success: true; data?: Booking }
@@ -67,7 +68,7 @@ export async function getBooking(id: number | undefined) {
 export async function saveBooking(prevData: UpdateResult, formData: FormData) {
   const supabase = await createClient();
   const id = formData.get('id') ? Number(formData.get('id')) : undefined;
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from('booking')
     .upsert({
       id: id || undefined,
@@ -95,6 +96,10 @@ export async function saveBooking(prevData: UpdateResult, formData: FormData) {
       success: false,
       message: `Error saving booking: ${error}`,
     };
+  }
+
+  if (!id) {
+    redirect(`/booking/${data[0].id}`);
   }
 
   return {

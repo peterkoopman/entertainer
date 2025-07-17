@@ -24,6 +24,7 @@ import { Booking, saveBooking, UpdateResult, deleteBooking } from './actions';
 import dayjs from 'dayjs';
 import 'dayjs/locale/en-nz';
 import Link from 'next/link';
+import { Client } from '../clients/actions';
 
 interface DropdownOption {
   id: number | null;
@@ -32,7 +33,8 @@ interface DropdownOption {
 }
 
 interface BookingFormProps {
-  booking: Booking | null;
+  booking?: Booking | null;
+  client?: Client | null;
   setups: DropdownOption[] | null;
   statuses: DropdownOption[] | null;
   types: DropdownOption[] | null;
@@ -41,6 +43,7 @@ interface BookingFormProps {
 
 export default function BookingForm({
   booking,
+  client,
   setups,
   statuses,
   types,
@@ -54,7 +57,9 @@ export default function BookingForm({
     message: '',
   });
   const [isDirty, setIsDirty] = useState(false);
-  const [bookingData, setBookingData] = useState<Booking | null>(booking);
+  const [bookingData, setBookingData] = useState<Booking | null>(
+    booking || null
+  );
   // Use dirty form detection to highlight save button
   useEffect(() => {
     if (bookingData) {
@@ -93,10 +98,10 @@ export default function BookingForm({
     }
   };
 
-  if (!booking?.id) {
+  if (!client?.id && !booking?.id) {
     return (
       <ThemeProvider theme={theme}>
-        <h2>That booking does not exist.</h2>
+        <h2>{`That booking does not exist.`}</h2>
         <Box sx={{ display: 'flex', justifyContent: 'flex-start' }}>
           <Link href="/">Home</Link>
         </Box>
@@ -110,20 +115,22 @@ export default function BookingForm({
         <h1>Booking</h1>
         <h2>
           Client:{' '}
-          <Link href={`/clients/${bookingData?.client_id || ''}`}>{`${
-            bookingData?.client?.name || ''
+          <Link
+            href={`/clients/${bookingData?.client_id || client?.id || ''}`}>{`${
+            bookingData?.client?.name || client?.name || ''
           }${
-            bookingData?.client?.name && bookingData?.client?.company
+            (bookingData?.client?.name && bookingData?.client?.company) ||
+            (client?.name && client?.company)
               ? ', '
               : ''
-          }${bookingData?.client?.company || ''}`}</Link>
+          }${bookingData?.client?.company || client?.company}`}</Link>
         </h2>
         <Box component="form" className={style.form} action={wrappedFormAction}>
           <input type="hidden" name="id" value={bookingData?.id || ''} />
           <input
             type="hidden"
             name="client_id"
-            value={bookingData?.client_id || ''}
+            value={bookingData?.client_id || client?.id || ''}
           />
           <TextField
             name="venue_name"

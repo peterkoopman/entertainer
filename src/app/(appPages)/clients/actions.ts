@@ -166,22 +166,6 @@ export async function deleteClient(clientId: number | undefined) {
   };
 }
 
-export async function createNewBooking(clientId: number | undefined) {
-  const supabase = await createClient();
-  if (!clientId) return null;
-  const { data, error } = await supabase
-    .from('booking')
-    .insert({ client_id: clientId })
-    .select();
-
-  console.log(data, error);
-  if (error) {
-    console.error('Error creating new booking:', error.message);
-    return null;
-  }
-  redirect(`/booking/${data && data.length > 0 && data?.[0].id}`);
-}
-
 export async function getCountries(): Promise<Country[]> {
   const result = await fetch(
     'https://valid.layercode.workers.dev/list/countries?format=select&flags=true&value=code'
