@@ -76,6 +76,68 @@ export async function getClient(
   };
 }
 
+export async function clientSearch(
+  query: string
+): Promise<RequestResult<Client[]>> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from('client')
+    .select('id, name, company')
+    .or(`name.ilike.%${query}%, company.ilike.%${query}%`)
+    .limit(10);
+
+  if (error) {
+    console.error(`Error searching clients: ${JSON.stringify(error)}`);
+    return {
+      success: false,
+      message: `Error searching clients: ${error.message}`,
+    };
+  }
+
+  if (!data) {
+    return {
+      success: true,
+      data: null,
+    };
+  }
+
+  return {
+    success: true,
+    data: data,
+  };
+}
+
+export async function getRecentClients(): Promise<RequestResult<Client[]>> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from('client')
+    .select('id, name, company')
+    .order('created_at', { ascending: false })
+    .limit(5);
+
+  if (error) {
+    console.error(`Error fetching recent clients`, error);
+    return {
+      success: false,
+      message: `Error fetching recent clients: ${error}`,
+    };
+  }
+
+  if (!data) {
+    return {
+      success: true,
+      data: null,
+    };
+  }
+
+  return {
+    success: true,
+    data: data,
+  };
+}
+
 export async function getBookingsForClient(
   id: number | undefined
 ): Promise<RequestResult<Booking[]>> {
