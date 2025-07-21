@@ -114,7 +114,7 @@ export async function getRecentClients(): Promise<RequestResult<Client[]>> {
   const { data, error } = await supabase
     .from('client')
     .select('id, name, company')
-    .order('created_at', { ascending: false })
+    .order('updated_at', { ascending: false })
     .limit(5);
 
   if (error) {

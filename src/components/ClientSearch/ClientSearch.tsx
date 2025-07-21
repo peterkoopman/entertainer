@@ -13,9 +13,6 @@ const ClientSearch = () => {
   const [options, setOptions] = useState<Client[]>([]);
   const [recent, setRecent] = useState<Client[]>([]);
 
-  // TODO: find clients in database - start with recent clients.
-  // setOptions initially loads recent clients, then changes with the search results
-
   useEffect(() => {
     const fetchClients = async () => {
       const response = await getRecentClients();
