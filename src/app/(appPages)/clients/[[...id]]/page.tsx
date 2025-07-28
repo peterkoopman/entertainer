@@ -15,8 +15,14 @@ export default async function ClientPage({
 }: {
   params: Promise<{ id?: string }>;
 }) {
-  const countries = await getCountries();
   const { id } = await params;
+  const clientId = Number(id);
+
+  const [countries, clientResult, bookingsResult] = await Promise.all([
+    getCountries(),
+    getClient(clientId),
+    getBookingsForClient(clientId),
+  ]);
   if (!id) {
     return (
       <ClientForm
@@ -27,13 +33,6 @@ export default async function ClientPage({
       />
     );
   }
-  const clientId = Number(id);
-
-  const [countries, clientResult, bookingsResult] = await Promise.all([
-    getCountries(),
-    getClient(clientId),
-    getBookingsForClient(clientId),
-  ]);
 
   if (clientResult.success === false) {
     return <h2>Error getting client</h2>;
