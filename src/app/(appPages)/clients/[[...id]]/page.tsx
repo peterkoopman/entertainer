@@ -28,17 +28,25 @@ export default async function ClientPage({
     );
   }
   const clientId = Number(id);
-  const clientData: RequestResult<Client> | null = await getClient(clientId);
 
-  const bookingsResult = await getBookingsForClient(clientId);
+  const [countries, clientResult, bookingsResult] = await Promise.all([
+    getCountries(),
+    getClient(clientId),
+    getBookingsForClient(clientId),
+  ]);
+
+  if (clientResult.success === false) {
+    return <h2>Error getting client</h2>;
+  }
+
   if (bookingsResult.success === false) {
     return <h2>Error getting bookings for client</h2>;
   }
   const bookings = bookingsResult.data;
 
-  const client = clientData.success && clientData.data;
+  const client = clientResult.success && clientResult.data;
 
-  if (clientData.success === true && clientData.data === null) {
+  if (clientResult.success === true && clientResult.data === null) {
     return (
       <div style={{ textAlign: 'center' }}>
         <h2>Client not found</h2>
