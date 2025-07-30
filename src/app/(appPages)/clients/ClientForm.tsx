@@ -32,13 +32,18 @@ const ClientForm = ({ client, countries, bookings }: ClientFormProps) => {
   });
 
   useEffect(() => {
-    setInitialData(formValues);
+    if (formState.success) {
+      setIsDirty(false);
+      // After a successful save, the current form values are the new initial state.
+      setInitialData(formValues);
+    }
   }, [formState, formValues]);
 
+  // Effect to reset the form when the client prop changes
   useEffect(() => {
-    // Reset save button highlight on Save
-    if (formState.success) setIsDirty(false);
-  }, [formState]);
+    setInitialData(client || {});
+    setFormValues(client || {});
+  }, [client]);
 
   // Use dirty form detection to highlight save button
   useEffect(() => {
@@ -174,7 +179,10 @@ const ClientForm = ({ client, countries, bookings }: ClientFormProps) => {
           <Button type="button" variant="outlined" onClick={handleDelete}>
             Delete
           </Button>
-          <Button type="submit" variant={isDirty ? 'contained' : 'outlined'}>
+          <Button
+            data-testid="saveButton"
+            type="submit"
+            variant={isDirty ? 'contained' : 'outlined'}>
             Save
           </Button>
           {isPending && <CircularProgress size={32} />}
