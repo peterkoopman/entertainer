@@ -5,7 +5,6 @@ import {
   getBookingsForClient,
   getClient,
   getCountries,
-  RequestResult,
   Client,
 } from '../actions';
 import ClientForm from '../ClientForm';
@@ -16,23 +15,17 @@ export default async function ClientPage({
   params: Promise<{ id?: string }>;
 }) {
   const { id } = await params;
-  const clientId = Number(id);
+  const countries = await getCountries();
 
-  const [countries, clientResult, bookingsResult] = await Promise.all([
-    getCountries(),
+  if (!id) {
+    return <ClientForm client={null} countries={countries} bookings={[]} />;
+  }
+
+  const clientId = Number(id);
+  const [clientResult, bookingsResult] = await Promise.all([
     getClient(clientId),
     getBookingsForClient(clientId),
   ]);
-  if (!id) {
-    return (
-      <ClientForm
-        client={null}
-        countries={countries}
-        bookings={[]}
-        key={undefined}
-      />
-    );
-  }
 
   if (clientResult.success === false) {
     return <h2>Error getting client</h2>;
@@ -61,7 +54,6 @@ export default async function ClientPage({
       client={client as Client | null}
       countries={countries}
       bookings={bookings || []}
-      key={clientId}
     />
   );
 }
