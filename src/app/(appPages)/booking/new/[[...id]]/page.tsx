@@ -16,16 +16,17 @@ import BookingForm from '@/app/(appPages)/booking/BookingForm';
 export default async function BookingPage({
   params,
 }: {
-  params: Promise<{ id?: string }>;
+  params: { clientId?: string };
 }) {
-  const { id } = await params;
-  const clientId = Number(id);
+  const { clientId } = params;
   const setups = await getSetups();
   const statuses = await getStatuses();
   const types = await getTypes();
   const taxTypes = await getTaxTypes();
 
-  const clientResult: RequestResult<Client> | null = await getClient(clientId);
+  const clientResult: RequestResult<Client> | null = await getClient(
+    Number(clientId)
+  );
   const client = clientResult.success && clientResult.data;
 
   return (

@@ -14,7 +14,7 @@ import BookingForm from '../BookingForm';
 export default async function BookingPage({
   params,
 }: {
-  params: Promise<{ id?: string }>;
+  params: { id?: string };
 }) {
   const { id } = await params;
   const bookingId = Number(id);
@@ -40,7 +40,6 @@ export default async function BookingPage({
       statuses={statuses}
       types={types}
       taxTypes={taxTypes}
-      key={bookingId}
     />
   );
 }
