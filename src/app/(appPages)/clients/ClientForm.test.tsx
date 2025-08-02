@@ -5,7 +5,6 @@ import ClientForm from './ClientForm';
 import { deleteClient } from './actions';
 import { redirect } from 'next/navigation';
 
-// Define types used by the component for test clarity
 interface Client {
   id?: number;
   name?: string;
@@ -31,7 +30,6 @@ interface Country {
   label: string;
 }
 
-// Mock the modules
 jest.mock('./actions', () => ({
   saveClient: jest.fn(),
   deleteClient: jest.fn(),
@@ -40,7 +38,6 @@ jest.mock('next/navigation', () => ({
   redirect: jest.fn(),
 }));
 
-// Mock useActionState
 const mockUseActionState = jest.fn();
 jest.mock('react', () => {
   const originalReact = jest.requireActual('react');
@@ -85,9 +82,14 @@ describe('ClientForm', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    formAction = jest.fn((state, payload) =>
-      Promise.resolve({ success: true, message: 'Saved' })
-    );
+    formAction = jest.fn((state, payload) => {
+      Promise.resolve({
+        success: true,
+        message: `state: ${JSON.stringify(state)}, payload: ${JSON.stringify(
+          payload
+        )}`,
+      });
+    });
     formState = { success: false, message: '' };
     isPending = false;
     mockUseActionState.mockReturnValue([formState, formAction, isPending]);

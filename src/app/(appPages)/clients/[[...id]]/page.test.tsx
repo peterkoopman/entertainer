@@ -5,13 +5,11 @@ import ClientForm from '../ClientForm';
 
 jest.mock('../actions', () => ({
   __esModule: true,
-  // Mock specific functions with jest.fn()
   getCountries: jest.fn(),
   getClient: jest.fn(),
   getBookingsForClient: jest.fn(),
-  // If you export Client type from actions.ts, you might need to re-export it here
-  // Client: jest.fn(), // Or an actual mock type if needed by other files importing from actions.ts
 }));
+
 jest.mock('../ClientForm', () => {
   const MockClientForm = jest.fn((props) => (
     <div data-testid="mock-client-form">
@@ -30,7 +28,7 @@ describe('ClientPage', () => {
   const mockGetCountries = getCountries as jest.Mock;
   const mockGetClient = getClient as jest.Mock;
   const mockGetBookingsForClient = getBookingsForClient as jest.Mock;
-  const MockClientForm = ClientForm as jest.Mock; // Reference to the mocked component
+  const MockClientForm = ClientForm as jest.Mock;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -45,7 +43,7 @@ describe('ClientPage', () => {
     mockGetBookingsForClient.mockResolvedValue({ success: true, data: [] }); // Default to empty bookings
   });
 
-  it('renders ClientForm for a new client (no ID)', async () => {
+  it('renders empty ClientForm for a new client (no ID)', async () => {
     const Page = await ClientPage({ params: Promise.resolve({}) });
     render(Page);
     expect(MockClientForm).toHaveBeenCalledTimes(1);
@@ -62,7 +60,7 @@ describe('ClientPage', () => {
     });
     expect(mockGetClient).not.toHaveBeenCalled();
     expect(mockGetBookingsForClient).not.toHaveBeenCalled();
-    // getCountries should still be called
+    // getCountries should still be called to populate the dropdown
     expect(mockGetCountries).toHaveBeenCalledTimes(1);
   });
 });

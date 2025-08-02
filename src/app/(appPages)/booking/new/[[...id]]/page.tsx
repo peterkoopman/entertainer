@@ -16,9 +16,9 @@ import BookingForm from '@/app/(appPages)/booking/BookingForm';
 export default async function BookingPage({
   params,
 }: {
-  params: { clientId?: string };
+  params: Promise<{ clientId?: string }>;
 }) {
-  const { clientId } = params;
+  const { clientId } = await params;
   const setups = await getSetups();
   const statuses = await getStatuses();
   const types = await getTypes();
