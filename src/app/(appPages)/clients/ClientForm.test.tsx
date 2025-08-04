@@ -4,6 +4,7 @@ import '@testing-library/jest-dom';
 import ClientForm from './ClientForm';
 import { deleteClient } from './actions';
 import { redirect } from 'next/navigation';
+import { useFormContext } from '@/context/FormSaveContext';
 
 interface Client {
   id?: number;
@@ -34,8 +35,16 @@ jest.mock('./actions', () => ({
   saveClient: jest.fn(),
   deleteClient: jest.fn(),
 }));
+
 jest.mock('next/navigation', () => ({
   redirect: jest.fn(),
+}));
+
+jest.mock('../../../context/FormSaveContext', () => ({
+  useFormContext: jest.fn(() => ({
+    triggerSidebarUpdate: jest.fn(), // A mock function
+    sidebarUpdateKey: 1, // A mock value
+  })),
 }));
 
 const mockUseActionState = jest.fn();

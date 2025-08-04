@@ -9,6 +9,7 @@ import {
   RequestResult,
 } from '@/app/(appPages)/clients/actions';
 import { redirect } from 'next/navigation';
+import { useFormContext } from '@/context/FormSaveContext';
 
 const searchClients = async (searchTerm: string) => {
   if (searchTerm) {
@@ -25,6 +26,7 @@ const ClientSearch = () => {
   const [recent, setRecent] = useState<Client[]>([]);
   const [inputValue, setInputValue] = useState('');
   const debouncedInputValue = useDebounce<string>(inputValue, 500);
+  const { sidebarUpdateKey } = useFormContext();
 
   useEffect(() => {
     const fetchClients = async () => {
@@ -34,7 +36,7 @@ const ClientSearch = () => {
       setOptions(recent as Client[]);
     };
     fetchClients();
-  }, []);
+  }, [sidebarUpdateKey]);
 
   useEffect(() => {
     if (debouncedInputValue) {
@@ -62,7 +64,7 @@ const ClientSearch = () => {
   };
 
   return (
-    <div className={style.clientSearch}>
+    <div className={style.clientSearch} key={sidebarUpdateKey}>
       <Autocomplete
         clearOnBlur
         clearOnEscape

@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useActionState, MouseEvent } from 'react';
 import { ThemeProvider } from '@emotion/react';
+import { useFormContext } from '@/context/FormSaveContext';
 import { theme } from '@/utils/muiThemes';
 import {
   Box,
@@ -31,6 +32,8 @@ const ClientForm = ({ client, countries, bookings }: ClientFormProps) => {
     message: '',
   });
 
+  const { triggerSidebarUpdate } = useFormContext();
+
   useEffect(() => {
     if (formState.success) {
       setIsDirty(false);
@@ -59,6 +62,7 @@ const ClientForm = ({ client, countries, bookings }: ClientFormProps) => {
     if (client?.id) {
       if (confirm('Are you sure you want to delete this client?')) {
         deleteClient(Number(client?.id));
+        triggerSidebarUpdate();
         redirect('/clients');
       }
     } else {
@@ -68,6 +72,7 @@ const ClientForm = ({ client, countries, bookings }: ClientFormProps) => {
 
   const handleNewBooking = async (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+    triggerSidebarUpdate();
     if (client?.id) {
       redirect(`/booking/new/${client?.id}`);
     } else {
@@ -81,6 +86,7 @@ const ClientForm = ({ client, countries, bookings }: ClientFormProps) => {
       <Box
         component="form"
         action={formAction}
+        onSubmit={triggerSidebarUpdate}
         sx={{
           maxWidth: 720,
           width: 1,
