@@ -4,7 +4,8 @@ import '@testing-library/jest-dom';
 import ClientForm from './ClientForm';
 import { deleteClient } from './actions';
 import { redirect } from 'next/navigation';
-import { useFormContext } from '@/context/FormSaveContext';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { useFormContext } from '@/context/FormSaveContext';
 
 interface Client {
   id?: number;
