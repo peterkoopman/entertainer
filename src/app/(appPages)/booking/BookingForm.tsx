@@ -60,6 +60,7 @@ export default function BookingForm({
   const [bookingData, setBookingData] = useState<Booking | null>(
     booking || null
   );
+
   // Use dirty form detection to highlight save button
   useEffect(() => {
     if (bookingData) {
@@ -98,17 +99,6 @@ export default function BookingForm({
     }
   };
 
-  if (!client?.id && !booking?.id) {
-    return (
-      <ThemeProvider theme={theme}>
-        <h2>{`That booking does not exist.`}</h2>
-        <Box sx={{ display: 'flex', justifyContent: 'flex-start' }}>
-          <Link href="/">Home</Link>
-        </Box>
-      </ThemeProvider>
-    );
-  }
-
   return (
     <ThemeProvider theme={theme}>
       <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -123,7 +113,7 @@ export default function BookingForm({
             (client?.name && client?.company)
               ? ', '
               : ''
-          }${bookingData?.client?.company || client?.company}`}</Link>
+          }${bookingData?.client?.company || client?.company || ''}`}</Link>
         </h2>
         <Box component="form" className={style.form} action={wrappedFormAction}>
           <input type="hidden" name="id" value={bookingData?.id || ''} />

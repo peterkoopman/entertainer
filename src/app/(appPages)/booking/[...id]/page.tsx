@@ -10,6 +10,8 @@ import {
   BookingResult,
 } from '../actions';
 import BookingForm from '../BookingForm';
+import { Box } from '@mui/material';
+import Link from 'next/link';
 
 export default async function BookingPage({
   params,
@@ -32,6 +34,17 @@ export default async function BookingPage({
   const statuses = await getStatuses();
   const types = await getTypes();
   const taxTypes = await getTaxTypes();
+
+  if (!booking) {
+    return (
+      <>
+        <h2>{`That booking does not exist.`}</h2>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+          <Link href="/">Home</Link>
+        </Box>
+      </>
+    );
+  }
 
   return (
     <BookingForm

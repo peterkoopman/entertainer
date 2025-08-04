@@ -38,7 +38,6 @@ const ClientSearch = () => {
 
   useEffect(() => {
     if (debouncedInputValue) {
-      console.log(debouncedInputValue);
       const res = searchClients(debouncedInputValue);
       res.then((result) => {
         if (result && result.length > 0) {
