@@ -25,6 +25,7 @@ import dayjs from 'dayjs';
 import 'dayjs/locale/en-nz';
 import Link from 'next/link';
 import { Client } from '../clients/actions';
+import { redirect } from 'next/navigation';
 
 interface DropdownOption {
   id: number | null;
@@ -94,7 +95,11 @@ export default function BookingForm({
     if (!booking?.id) return;
     if (confirm('Are you sure you want to delete this booking?')) {
       await deleteBooking(booking.id).then((data) => {
-        console.log(data);
+        if (data.success) {
+          redirect(`/clients/${bookingData?.client_id || ''}`);
+        } else {
+          alert(data.message);
+        }
       });
     }
   };

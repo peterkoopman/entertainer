@@ -10,8 +10,7 @@ import {
   BookingResult,
 } from '../actions';
 import BookingForm from '../BookingForm';
-import { Box } from '@mui/material';
-import Link from 'next/link';
+import BookingNotFound from '../not-found';
 
 export default async function BookingPage({
   params,
@@ -19,32 +18,17 @@ export default async function BookingPage({
   params: Promise<{ id?: string }>;
 }) {
   const { id } = await params;
-  const bookingId = Number(id);
-  let booking: Booking | null | undefined;
+  const result: BookingResult | null = await getBooking(Number(id));
+  let booking: Booking | null | undefined = null;
 
-  const result: BookingResult | null = await getBooking(bookingId);
+  if (result && result.success) booking = result.data;
 
-  if (result && result.success) {
-    booking = result.data;
-  } else {
-    booking = null;
-  }
+  if (!booking) return BookingNotFound();
 
   const setups = await getSetups();
   const statuses = await getStatuses();
   const types = await getTypes();
   const taxTypes = await getTaxTypes();
-
-  if (!booking) {
-    return (
-      <>
-        <h2>{`That booking does not exist.`}</h2>
-        <Box sx={{ display: 'flex', justifyContent: 'flex-start' }}>
-          <Link href="/">Home</Link>
-        </Box>
-      </>
-    );
-  }
 
   return (
     <BookingForm

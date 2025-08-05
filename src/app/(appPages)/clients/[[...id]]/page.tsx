@@ -1,6 +1,5 @@
 'use server';
 
-import Link from 'next/link';
 import {
   getBookingsForClient,
   getClient,
@@ -8,6 +7,7 @@ import {
   Client,
 } from '../actions';
 import ClientForm from '../ClientForm';
+import ClientNotFound from '../not-found';
 
 export default async function ClientPage({
   params,
@@ -39,14 +39,7 @@ export default async function ClientPage({
   const client = clientResult.success && clientResult.data;
 
   if (clientResult.success === true && clientResult.data === null) {
-    return (
-      <div style={{ textAlign: 'center' }}>
-        <h2>Client not found</h2>
-        <p>
-          <Link href="/">Home</Link>
-        </p>
-      </div>
-    );
+    return ClientNotFound();
   }
 
   return (

@@ -15,20 +15,6 @@ export default function BookingNotFound() {
       <p>We couldn&apos;t locate a booking with that specific ID.</p>
       <p>It might have been deleted or never existed.</p>
       <Link
-        href="/my-bookings"
-        style={{
-          display: 'inline-block',
-          marginTop: '20px',
-          padding: '10px 20px',
-          backgroundColor: '#28a745',
-          color: 'white',
-          textDecoration: 'none',
-          borderRadius: '5px',
-        }}>
-        View Your Bookings
-      </Link>
-      <br />
-      <Link
         href="/"
         style={{
           display: 'inline-block',
