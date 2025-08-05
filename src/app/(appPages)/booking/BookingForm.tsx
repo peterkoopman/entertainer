@@ -128,6 +128,7 @@ export default function BookingForm({
             value={bookingData?.client_id || client?.id || ''}
           />
           <TextField
+            required
             name="venue_name"
             label="Venue"
             value={bookingData?.venue_name || ''}
@@ -160,7 +161,7 @@ export default function BookingForm({
                   <DatePicker
                     label="Date"
                     format="DD/MM/YYYY"
-                    value={dayjs(bookingData?.date)}
+                    value={dayjs(bookingData?.date || null)}
                     onChange={(e) => {
                       setBookingData({
                         ...bookingData,

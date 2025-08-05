@@ -95,6 +95,7 @@ const ClientForm = ({ client, countries, bookings }: ClientFormProps) => {
         }}>
         <input type="hidden" name="id" value={formValues?.id || ''} />
         <TextField
+          required
           name="name"
           label="Name"
           value={formValues?.name || ''}
@@ -103,12 +104,18 @@ const ClientForm = ({ client, countries, bookings }: ClientFormProps) => {
           }
         />
         <TextField
+          required
           name="email"
           label="Email"
           value={formValues?.email || ''}
           onChange={(e) =>
             setFormValues({ ...formValues, email: e.target.value })
           }
+          slotProps={{
+            htmlInput: {
+              type: 'email',
+            },
+          }}
         />
         <TextField
           name="company"
