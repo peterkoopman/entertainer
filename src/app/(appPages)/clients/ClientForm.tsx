@@ -190,8 +190,9 @@ const ClientForm = ({ client, countries, bookings }: ClientFormProps) => {
           <TextField name="bookings" label="Bookings" select value="">
             {bookings.map((booking) => (
               <MenuItem key={booking.id}>
-                <Link
-                  href={`/booking/${booking.id}`}>{`${booking.date}, ${booking.start_time} - ${booking.venue_name}`}</Link>
+                <Link href={`/booking/${booking.id}`}>{`${
+                  booking.date || 'Date TBC'
+                }, ${booking.start_time || ''} - ${booking.venue_name}`}</Link>
               </MenuItem>
             ))}
           </TextField>
