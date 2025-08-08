@@ -4,33 +4,10 @@ import '@testing-library/jest-dom';
 import ClientForm from './ClientForm';
 import { deleteClient } from './actions';
 import { redirect } from 'next/navigation';
+import { mockCountries, mockClient, mockBookings } from './ClientFormMocks';
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { useFormContext } from '@/context/FormSaveContext';
-
-interface Client {
-  id?: number;
-  name?: string;
-  email?: string;
-  company?: string;
-  phone?: string;
-  address?: string;
-  city?: string;
-  country?: string;
-  notes?: string;
-}
-
-interface Booking {
-  id: number;
-  date: string;
-  start_time: string;
-  venue_name: string;
-  client_id: number;
-}
-
-interface Country {
-  value: string;
-  label: string;
-}
 
 jest.mock('./actions', () => ({
   saveClient: jest.fn(),
@@ -57,33 +34,6 @@ jest.mock('react', () => {
       mockUseActionState(action, initialState),
   };
 });
-
-const mockCountries: Country[] = [
-  { value: 'US', label: 'United States' },
-  { value: 'CA', label: 'Canada' },
-];
-
-const mockClient: Client = {
-  id: 1,
-  name: 'Test Client',
-  email: 'test@example.com',
-  company: 'Test Inc.',
-  phone: '1234567890',
-  address: '123 Test St',
-  city: 'Testville',
-  country: 'US',
-  notes: 'Some notes',
-};
-
-const mockBookings: Booking[] = [
-  {
-    id: 101,
-    date: '2024-01-01',
-    start_time: '10:00',
-    venue_name: 'Venue 1',
-    client_id: 1,
-  },
-];
 
 describe('ClientForm', () => {
   let formAction: jest.Mock;
@@ -150,13 +100,36 @@ describe('ClientForm', () => {
   it('submits the form when save is clicked', async () => {
     render(<ClientForm countries={mockCountries} bookings={[]} />);
     const nameInput = screen.getByLabelText(/name/i);
+    const emailInput = screen.getByLabelText(/email/i);
     const saveButton = screen.getByRole('button', { name: /save/i });
 
-    fireEvent.change(nameInput, { target: { value: 'New Client Name' } });
+    fireEvent.change(nameInput, { target: { value: 'Client Name' } });
+    fireEvent.change(emailInput, { target: { value: 'valid@email.com' } });
     fireEvent.click(saveButton);
 
     await waitFor(() => {
       expect(formAction).toHaveBeenCalled();
+    });
+  });
+
+  it('does not submit the form if validation fails', async () => {
+    render(<ClientForm countries={mockCountries} bookings={[]} />);
+    const nameInput = screen.getByLabelText(/name/i);
+    const emailInput = screen.getByLabelText(/email/i);
+    const saveButton = screen.getByRole('button', { name: /save/i });
+
+    fireEvent.click(saveButton);
+
+    await waitFor(() => {
+      expect(formAction).not.toHaveBeenCalled();
+    });
+    fireEvent.change(nameInput, { target: { value: 'New Client Name' } });
+    await waitFor(() => {
+      expect(formAction).not.toHaveBeenCalled();
+    });
+    fireEvent.change(emailInput, { target: { value: 'invalid-email' } });
+    await waitFor(() => {
+      expect(formAction).not.toHaveBeenCalled();
     });
   });
 
