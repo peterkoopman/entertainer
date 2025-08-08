@@ -5,6 +5,7 @@ import { ThemeProvider } from '@emotion/react';
 import { useFormContext } from '@/context/FormSaveContext';
 import { theme } from '@/utils/muiThemes';
 import {
+  Autocomplete,
   Box,
   Button,
   CircularProgress,
@@ -25,6 +26,7 @@ interface ClientFormProps {
 const ClientForm = ({ client, countries, bookings }: ClientFormProps) => {
   const [formValues, setFormValues] = useState<Client>(client || {});
   const [initialData, setInitialData] = useState<Client>(client || {});
+  const [country, setCountry] = useState(client?.country || '');
   const [isDirty, setIsDirty] = useState(false);
 
   const [formState, formAction, isPending] = useActionState(saveClient, {
@@ -151,23 +153,32 @@ const ClientForm = ({ client, countries, bookings }: ClientFormProps) => {
             setFormValues({ ...formValues, city: e.target.value })
           }
         />
-        <TextField
-          name="country"
-          label="Country"
-          select
-          value={formValues?.country || ''}
-          onChange={(e) => {
-            setFormValues({ ...formValues, country: e.target.value });
-          }}>
-          {countries.map((country) => (
-            <MenuItem key={country.value} value={country.value}>
-              {country.label}
-            </MenuItem>
-          ))}
-        </TextField>
+        <input type="hidden" name="country" value={country} />
+        <Autocomplete
+          clearOnBlur
+          clearOnEscape
+          autoHighlight
+          options={countries}
+          value={countries.find((cty) => cty.value === country)}
+          getOptionLabel={(option) => option.label}
+          renderInput={(params) => (
+            <TextField {...params} label="Where in the world are you?" />
+          )}
+          onChange={(e, value) => {
+            if (value) {
+              setCountry(value.value);
+              setFormValues({ ...formValues, country: value.value });
+            }
+          }}
+          onInputChange={(e, value, reason) => {
+            if (reason === 'clear' || reason === 'blur') setCountry('');
+          }}
+        />
         <TextField
           name="notes"
           label="Notes"
+          autoComplete="new-password"
+          id="no-autofill"
           multiline
           maxRows={3}
           value={formValues?.notes || ''}
