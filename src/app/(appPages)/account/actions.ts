@@ -1,6 +1,6 @@
 'use server';
 
-import { createClient } from '@/utils/supabase/server';
+import { createClient } from '@/utils/mui/supabase/server';
 
 export interface Update {
   success: boolean;
