@@ -27,6 +27,8 @@ export default async function ClientPage({
     getBookingsForClient(clientId),
   ]);
 
+  console.log(clientResult);
+
   if (clientResult.success === false) {
     return <h2>Error getting client</h2>;
   }

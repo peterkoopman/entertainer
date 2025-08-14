@@ -2,6 +2,7 @@
 
 import { createClient } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
+import pool from '@/utils/postgres/db';
 
 export interface Client {
   id?: number | null;
@@ -37,11 +38,46 @@ export type RequestResult<T> =
 
 export type SaveResult = { success: boolean; message: string };
 
-export async function getClient(
-  id: number | undefined
-): Promise<RequestResult<Client>> {
-  const supabase = await createClient();
+// export async function getClient(
+//   id: number | undefined
+// ): Promise<RequestResult<Client>> {
+//   const supabase = await createClient();
 
+//   if (!id) {
+//     return {
+//       success: false,
+//       message: 'No client ID provided.',
+//     };
+//   }
+
+//   const { data, error } = await supabase
+//     .from('client')
+//     .select('*')
+//     .eq('id', id)
+//     .maybeSingle<Client | null>();
+
+//   if (error) {
+//     console.error(`Error fetching client: ${JSON.stringify(error)}`);
+//     return {
+//       success: false,
+//       message: `Error fetching client: ${error.message}`,
+//     };
+//   }
+
+//   if (data === null) {
+//     return {
+//       success: true,
+//       data: null,
+//     };
+//   }
+
+//   return {
+//     success: true,
+//     data: data,
+//   };
+// }
+
+export async function getClient(id: number | undefined) {
   if (!id) {
     return {
       success: false,
@@ -49,31 +85,30 @@ export async function getClient(
     };
   }
 
-  const { data, error } = await supabase
-    .from('client')
-    .select('*')
-    .eq('id', id)
-    .maybeSingle<Client | null>();
+  const qry = 'SELECT * FROM client WHERE id = $1';
+  const values = [id];
 
-  if (error) {
-    console.error(`Error fetching client: ${JSON.stringify(error)}`);
-    return {
-      success: false,
-      message: `Error fetching client: ${error.message}`,
-    };
-  }
+  try {
+    const { rows } = await pool.query(qry, values);
+    if (rows.length === 0) {
+      return {
+        success: true,
+        data: null,
+      };
+    }
 
-  if (data === null) {
     return {
       success: true,
-      data: null,
+      data: rows[0],
+    };
+  } catch (error) {
+    console.error('Falied to fetch client:', error);
+
+    return {
+      success: false,
+      message: `Error fetching client: ${error}`,
     };
   }
-
-  return {
-    success: true,
-    data: data,
-  };
 }
 
 export async function clientSearch(
@@ -148,33 +183,69 @@ export async function getBookingsForClient(
     };
   }
 
-  const supabase = await createClient();
+  const qry = 'SELECT * FROM booking WHERE client_id = $1';
+  const values = [id];
 
-  const { data, error } = await supabase
-    .from('booking')
-    .select('id, date, venue_name, start_time, end_time')
-    .eq('client_id', id);
+  try {
+    const { rows } = await pool.query(qry, values);
+    if (rows.length === 0) {
+      return {
+        success: true,
+        data: null,
+      };
+    }
 
-  if (error) {
-    console.error('Error fetching bookings:', error.message);
-    return {
-      success: false,
-      message: `Error fetching bookings: ${error}`,
-    };
-  }
-
-  if (!data) {
     return {
       success: true,
-      data: null,
+      data: rows,
+    };
+  } catch (error) {
+    console.error('Failed to fetch client bookings', error);
+
+    return {
+      success: false,
+      message: `Error fetching client bookings: ${error}`,
     };
   }
-
-  return {
-    success: true,
-    data: data,
-  };
 }
+
+// export async function getBookingsForClient(
+//   id: number | undefined
+// ): Promise<RequestResult<Booking[]>> {
+//   if (!id) {
+//     return {
+//       success: false,
+//       message: 'No client ID provided.',
+//     };
+//   }
+
+//   const supabase = await createClient();
+
+//   const { data, error } = await supabase
+//     .from('booking')
+//     .select('id, date, venue_name, start_time, end_time')
+//     .eq('client_id', id);
+
+//   if (error) {
+//     console.error('Error fetching bookings:', error.message);
+//     return {
+//       success: false,
+//       message: `Error fetching bookings: ${error}`,
+//     };
+//   }
+
+//   if (!data) {
+//     return {
+//       success: true,
+//       data: null,
+//     };
+//   }
+
+//   return {
+//     success: true,
+//     data: data,
+//   };
+// }
 
 export async function saveClient(prevState: SaveResult, formData: FormData) {
   const supabase = await createClient();
