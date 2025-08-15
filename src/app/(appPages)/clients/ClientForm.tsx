@@ -37,7 +37,7 @@ const ClientForm = ({ client, countries, bookings }: ClientFormProps) => {
   const { triggerSidebarUpdate } = useFormContext();
 
   useEffect(() => {
-    if (formState.success) {
+    if (formState?.success) {
       setIsDirty(false);
       // After a successful save, the current form values are the new initial state.
       setInitialData(formValues);

@@ -1,6 +1,5 @@
 'use server';
 
-import { createClient } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
 import pool from '@/utils/postgres/db';
 
@@ -38,45 +37,6 @@ export type RequestResult<T> =
 
 export type SaveResult = { success: boolean; message: string };
 
-// export async function getClient(
-//   id: number | undefined
-// ): Promise<RequestResult<Client>> {
-//   const supabase = await createClient();
-
-//   if (!id) {
-//     return {
-//       success: false,
-//       message: 'No client ID provided.',
-//     };
-//   }
-
-//   const { data, error } = await supabase
-//     .from('client')
-//     .select('*')
-//     .eq('id', id)
-//     .maybeSingle<Client | null>();
-
-//   if (error) {
-//     console.error(`Error fetching client: ${JSON.stringify(error)}`);
-//     return {
-//       success: false,
-//       message: `Error fetching client: ${error.message}`,
-//     };
-//   }
-
-//   if (data === null) {
-//     return {
-//       success: true,
-//       data: null,
-//     };
-//   }
-
-//   return {
-//     success: true,
-//     data: data,
-//   };
-// }
-
 export async function getClient(id: number | undefined) {
   if (!id) {
     return {
@@ -90,10 +50,16 @@ export async function getClient(id: number | undefined) {
 
   try {
     const { rows } = await pool.query(qry, values);
-    if (rows.length === 0) {
+    console.log(rows);
+    if (rows.length !== 1) {
       return {
         success: true,
         data: null,
+      };
+    } else {
+      return {
+        success: true,
+        data: rows[0],
       };
     }
 
@@ -102,7 +68,7 @@ export async function getClient(id: number | undefined) {
       data: rows[0],
     };
   } catch (error) {
-    console.error('Falied to fetch client:', error);
+    console.error('Failed to fetch client:', error);
 
     return {
       success: false,
@@ -114,63 +80,56 @@ export async function getClient(id: number | undefined) {
 export async function clientSearch(
   query: string
 ): Promise<RequestResult<Client[]>> {
-  const supabase = await createClient();
+  const qry =
+    'SELECT id, name, company FROM client WHERE name ILIKE $1 OR company ILIKE $1 LIMIT 10';
+  const values = [`%${query}%`];
 
-  const { data, error } = await supabase
-    .from('client')
-    .select('id, name, company')
-    .or(`name.ilike.%${query}%, company.ilike.%${query}%`)
-    .limit(10);
+  try {
+    const { rows } = await pool.query(qry, values);
+    if (rows.length === 0) {
+      return {
+        success: true,
+        data: null,
+      };
+    }
 
-  if (error) {
-    console.error(`Error searching clients: ${JSON.stringify(error)}`);
-    return {
-      success: false,
-      message: `Error searching clients: ${error.message}`,
-    };
-  }
-
-  if (!data) {
     return {
       success: true,
-      data: null,
+      data: rows,
+    };
+  } catch (error) {
+    console.error(`Error searching clients: ${error}`);
+    return {
+      success: false,
+      message: `Error searching clients: ${error}`,
     };
   }
-
-  return {
-    success: true,
-    data: data,
-  };
 }
 
 export async function getRecentClients(): Promise<RequestResult<Client[]>> {
-  const supabase = await createClient();
+  const qry = 'SELECT * FROM client ORDER BY updated_at DESC LIMIT 5';
 
-  const { data, error } = await supabase
-    .from('client')
-    .select('id, name, company')
-    .order('updated_at', { ascending: false })
-    .limit(5);
+  try {
+    const { rows } = await pool.query(qry);
+    if (rows.length === 0) {
+      return {
+        success: true,
+        data: null,
+      };
+    }
 
-  if (error) {
-    console.error(`Error fetching recent clients`, error);
+    return {
+      success: true,
+      data: rows,
+    };
+  } catch (error) {
+    console.error('Failed to fetch recent clients', error);
+
     return {
       success: false,
       message: `Error fetching recent clients: ${error}`,
     };
   }
-
-  if (!data) {
-    return {
-      success: true,
-      data: null,
-    };
-  }
-
-  return {
-    success: true,
-    data: data,
-  };
 }
 
 export async function getBookingsForClient(
@@ -209,94 +168,65 @@ export async function getBookingsForClient(
   }
 }
 
-// export async function getBookingsForClient(
-//   id: number | undefined
-// ): Promise<RequestResult<Booking[]>> {
-//   if (!id) {
-//     return {
-//       success: false,
-//       message: 'No client ID provided.',
-//     };
-//   }
-
-//   const supabase = await createClient();
-
-//   const { data, error } = await supabase
-//     .from('booking')
-//     .select('id, date, venue_name, start_time, end_time')
-//     .eq('client_id', id);
-
-//   if (error) {
-//     console.error('Error fetching bookings:', error.message);
-//     return {
-//       success: false,
-//       message: `Error fetching bookings: ${error}`,
-//     };
-//   }
-
-//   if (!data) {
-//     return {
-//       success: true,
-//       data: null,
-//     };
-//   }
-
-//   return {
-//     success: true,
-//     data: data,
-//   };
-// }
-
 export async function saveClient(prevState: SaveResult, formData: FormData) {
-  const supabase = await createClient();
   const clientId = formData.get('id') ? Number(formData.get('id')) : undefined;
+  const qry = `INSERT INTO client (id, name, email, company, phone, address, city, country, notes) 
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+                ON CONFLICT (id) DO UPDATE SET name = $2, email = $3, company = $4, phone = $5, address = $6, city = $7, country = $8, notes = $9
+                RETURNING *`;
+  const values = [
+    clientId,
+    formData.get('name') as string,
+    formData.get('email') as string,
+    formData.get('company') as string,
+    formData.get('phone') as string,
+    formData.get('address') as string,
+    formData.get('city') as string,
+    formData.get('country') as string,
+    formData.get('notes') as string,
+  ];
 
-  const { data, error } = await supabase
-    .from('client')
-    .upsert({
-      id: clientId,
-      name: formData.get('name') as string,
-      email: formData.get('email') as string,
-      phone: formData.get('phone') as string,
-      address: formData.get('address') as string,
-      city: formData.get('city') as string,
-      country: formData.get('country') as string,
-      notes: formData.get('notes') as string,
-    })
-    .select();
+  try {
+    const { rows } = await pool.query(qry, values);
+    console.log(rows);
 
-  if (error) {
-    console.error('Error saving client:', error.message);
+    if (!clientId) {
+      redirect(`/clients/${rows[0].id}`);
+    }
+
+    return {
+      success: true,
+      message: '',
+    };
+  } catch (error) {
+    console.error('Error saving client:', error);
     return {
       success: false,
       message: `Error saving client: ${error}`,
     };
   }
-
-  // If it's a new client (i.e. no client id), redirect to the new client page
-  if (!clientId) {
-    redirect(`/clients/${data[0].id}`);
-  }
-
-  return {
-    success: true,
-    message: '',
-  };
 }
 
 export async function deleteClient(clientId: number | undefined) {
-  const supabase = await createClient();
-
   if (!clientId) return redirect('/clients');
 
-  const { error } = await supabase.from('client').delete().eq('id', clientId);
+  // const { error } = await supabase.from('client').delete().eq('id', clientId);
+  const qry = 'DELETE FROM client WHERE id = $1';
+  const values = [clientId];
 
-  return {
-    success: !error,
-    message: error
-      ? `Error deleting client: ${error}`
-      : `Client deleted successfully.`,
-  };
+  try {
+    await pool.query(qry, values);
+    return {
+      success: true,
+      message: `Client deleted successfully.`,
+    };
+  } catch (error) {
+    console.error('Error deleting client:', error);
+    return {
+      success: false,
+      message: `Error deleting client: ${error}`,
+    };
+  }
 }
 
 export async function getCountries(): Promise<Country[]> {
