@@ -15,6 +15,7 @@ const config: Config = {
     '/node_modules/(?!(@supabase/supabase-js|@supabase/ssr|isows|uuid|nanoid)/).+\\.(js|jsx|ts|tsx|mjs)$', // '/node_modules/(?!.*(isows|another-esm-module-if-needed)).+\\.js$', // More general if you encounter other ESM modules
   ],
   moduleNameMapper: {
+    '^@/(.*)$': '<rootDir>/src/$1',
     '^@/components/(.*)$': '<rootDir>/src/components/$1',
   },
   // Add more setup options before each test is run
