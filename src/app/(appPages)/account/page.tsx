@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useUser } from '@/hooks/useUser';
+import { fetchProfile } from './actions';
 import { ThemeProvider } from '@emotion/react';
 import { theme } from '@/utils/muiThemes';
 import Link from 'next/link';
@@ -29,40 +30,43 @@ export interface Skill {
   name: string | null;
 }
 
+const getUser = async () => {
+  const user = await fetchProfile('c17f9dd9-dbe3-4496-856a-1de66321c676');
+  return user;
+};
+
 export default function AccountPage() {
-  const { user, profile, loading } = useUser();
+  // const { user, profile, loading } = useUser();
 
   const [skills, setSkills] = useState<Skill[] | null>([]);
-  const [userDetails, setUserDetails] = useState<UserDetails>({
-    id: user?.id,
-    email: user?.email,
-    ...profile,
-  });
+  const [userDetails, setUserDetails] = useState<UserDetails>({});
 
   // load initial data and avatar preview. Add avatar url to hidden field
   useEffect(() => {
-    setUserDetails({ ...user, ...profile });
-  }, [user, profile]);
+    getUser().then((data) => {
+      setUserDetails(data || {});
+    });
+  }, []);
   // load selected skills
   useEffect(() => {
-    fetchSkills(user?.id).then((data) => {
+    fetchSkills(userDetails?.id).then((data) => {
       setSkills(data);
     });
-  }, [user, profile]);
+  }, [userDetails]);
 
-  if (loading && !user) {
-    return <h1>Loading...</h1>;
-  }
+  // if (loading && !user) {
+  //   return <h1>Loading...</h1>;
+  // }
   // Send non-logged in users to the login screen
-  if (!user) {
-    return (
-      <div>
-        <h2>
-          Please <Link href="/login">log in</Link> to view the dashboard
-        </h2>
-      </div>
-    );
-  }
+  // if (!user) {
+  //   return (
+  //     <div>
+  //       <h2>
+  //         Please <Link href="/login">log in</Link> to view the dashboard
+  //       </h2>
+  //     </div>
+  //   );
+  // }
 
   return (
     <ThemeProvider theme={theme}>

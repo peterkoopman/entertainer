@@ -54,8 +54,6 @@ const UserAccountForm = ({
   const { avatarUrl, updateAvatarUrl, avatarPreview, updateAvatarPreview } =
     useContext(AvatarContext);
 
-  console.log(userDetails);
-
   useEffect(() => {
     if (formState) {
       console.log(formState.message);

@@ -29,15 +29,14 @@ const SkillSelect = ({
     (selectedSkills?.map((skill) => skill.name).filter(Boolean) as string[]) ||
       []
   );
-
   // Load all available skills for the skillset select field
   useEffect(() => {
+    console.log(selectedSkillNames);
     const loadSkills = async () => {
       const data = await fetchAllSkills();
       setAvailableSkills(data || []);
     };
     loadSkills();
-    console.log(selectedSkills, selectedSkillNames);
   }, []);
 
   // Update the parent component's state and trigger the dirty flag
