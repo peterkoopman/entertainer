@@ -7,7 +7,6 @@ import { useRef, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { List, ListItem } from '@mui/material';
 import { redirect } from 'next/navigation';
-import { createClient } from '@/utils/supabase/client';
 
 interface SidebarUserPopupProps {
   showPopup: boolean;
@@ -20,7 +19,6 @@ const SidebarUserPopup = ({
 }: SidebarUserPopupProps) => {
   const popupRef = useRef<HTMLDivElement | null>(null);
   useClickOutside(popupRef, () => setShowPopup(false));
-  const supabase = createClient();
 
   // Hide popup on navigate
   const pathname = usePathname();
@@ -29,8 +27,8 @@ const SidebarUserPopup = ({
   }, [pathname, setShowPopup]);
 
   const logout = async () => {
-    await supabase.auth.signOut();
-    // Redirect or refresh the page to reflect logged out state
+    // await supabase.auth.signOut();
+    // // Redirect or refresh the page to reflect logged out state
     redirect('/login');
   };
 

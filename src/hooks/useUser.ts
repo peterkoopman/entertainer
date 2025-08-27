@@ -2,13 +2,12 @@
 'use client'; // This hook is intended for Client Components
 
 import { useState, useEffect } from 'react';
-import { User } from '@supabase/supabase-js';
-import { createClient } from '@/utils/supabase/client'; // Adjust path as needed
+import pool from '@/utils/postgres/db';
+import { fetchProfile } from '@/app/(appPages)/account/actions';
 
-interface UserProfile {
+interface User {
   id: string;
   full_name: string;
-  username: string;
   avatar_url: string;
   phone: string;
   address: string;
@@ -23,55 +22,50 @@ interface UserProfile {
 
 export interface UseUserResult {
   user: User | null;
-  profile: UserProfile | null;
   loading: boolean;
 }
 
+const currentUser = {
+  id: '1',
+  full_name: 'Cornelus P Koopman',
+  avatar_url: 'avatar.jpg',
+  phone: '021 247 3480',
+  address: '23a Gledstane Rd, Stanmore Bay',
+  city: 'Auckland',
+  country: 'NZ',
+  tax_no: '40-986-464',
+  withholding_tax: false,
+  gst_registered: true,
+  created_at: '2025-08-21 00:16:59.086014+00',
+  updated_at: '2025-08-21 00:16:59.086014+00',
+};
+
 export function useUser(): UseUserResult {
   const [user, setUser] = useState<User | null>(null);
-  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
-  const supabase = createClient();
 
   useEffect(() => {
     const fetchUser = async (currentUser: User | null) => {
       setLoading(true);
       setUser(currentUser);
-      setProfile(null);
 
       if (currentUser) {
-        const { data: profileData, error: profileError } = await supabase
-          .from('userprofile')
-          .select('*')
-          .eq('id', currentUser.id)
-          .single();
-
-        if (profileError) {
-          console.error('Error fetching user profile:', profileError.message);
-        } else if (profileData) {
-          setProfile(profileData as UserProfile);
+        try {
+          const user = await fetchProfile(currentUser.id);
+          setUser(user);
+        } catch (error) {
+          console.error('Error fetching user:', error);
         }
       }
 
       setLoading(false);
     };
 
-    // Initial fetch
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      fetchUser(user);
-    });
+    // TODO: Initial fetch
+    fetchUser(currentUser);
 
-    // Listen for Auth state changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      fetchUser(session?.user || null);
-    });
+    // TODO: Listen for Auth state changes
+  }, []); // Re-run if supabase client instance changes (unlikely for a singleton client)
 
-    return () => {
-      subscription?.unsubscribe();
-    };
-  }, [supabase]); // Re-run if supabase client instance changes (unlikely for a singleton client)
-
-  return { user, profile, loading };
+  return { user, loading };
 }
