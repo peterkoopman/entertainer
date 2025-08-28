@@ -2,12 +2,14 @@
 'use client'; // This hook is intended for Client Components
 
 import { useState, useEffect } from 'react';
-import pool from '@/utils/postgres/db';
 import { fetchProfile } from '@/app/(appPages)/account/actions';
 
 interface User {
   id: string;
   full_name: string;
+  email: string;
+  emailverified: boolean;
+  pwhash: string;
   avatar_url: string;
   phone: string;
   address: string;
@@ -26,8 +28,11 @@ export interface UseUserResult {
 }
 
 const currentUser = {
-  id: '1',
+  id: 'c17f9dd9-dbe3-4496-856a-1de66321c676',
   full_name: 'Cornelus P Koopman',
+  email: 'peter@scribbledesign.co.nz',
+  emailverified: true,
+  pwhash: 'password',
   avatar_url: 'avatar.jpg',
   phone: '021 247 3480',
   address: '23a Gledstane Rd, Stanmore Bay',
@@ -52,6 +57,7 @@ export function useUser(): UseUserResult {
       if (currentUser) {
         try {
           const user = await fetchProfile(currentUser.id);
+          console.log(user);
           setUser(user);
         } catch (error) {
           console.error('Error fetching user:', error);

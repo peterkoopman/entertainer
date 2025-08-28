@@ -64,7 +64,7 @@ const UserAccountForm = ({
   useEffect(() => {
     if (userDetails?.avatar_url) {
       updateAvatarUrl(userDetails.avatar_url);
-      updateAvatarPreview(`${userDetails.avatar_url}?t=${Date.now()}`);
+      updateAvatarPreview(`/avatars/${userDetails.avatar_url}?t=${Date.now()}`);
     }
   }, [userDetails, updateAvatarUrl, updateAvatarPreview]);
 

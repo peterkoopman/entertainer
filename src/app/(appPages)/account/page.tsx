@@ -1,11 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useUser } from '@/hooks/useUser';
 import { fetchProfile } from './actions';
 import { ThemeProvider } from '@emotion/react';
 import { theme } from '@/utils/muiThemes';
-import Link from 'next/link';
+// import { useUser } from '@/hooks/useUser';
+// import Link from 'next/link';
 import { fetchSkills } from './actions';
 import UserAccountForm from './UserAccountForm';
 
@@ -36,8 +36,6 @@ const getUser = async () => {
 };
 
 export default function AccountPage() {
-  // const { user, profile, loading } = useUser();
-
   const [skills, setSkills] = useState<Skill[] | null>([]);
   const [userDetails, setUserDetails] = useState<UserDetails>({});
 

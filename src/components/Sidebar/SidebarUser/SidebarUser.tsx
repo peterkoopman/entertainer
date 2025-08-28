@@ -9,7 +9,7 @@ import style from './SidebarUser.module.css';
 
 const SidebarUser = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
   const [showPopup, setShowPopup] = useState(false);
-  const { user, profile, loading } = useUser();
+  const { user, loading } = useUser();
   const { avatarPreview } = useContext(AvatarContext);
 
   if (loading && !user) {
@@ -27,10 +27,10 @@ const SidebarUser = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
         <button
           className={`${style.userDisplay} ${sidebarOpen ? '' : style.closed}`}
           onClick={togglePopup}>
-          <Avatar src={avatarPreview || ''} alt={profile?.full_name} />
+          <Avatar src={avatarPreview || ''} alt={user?.full_name} />
           <div
             className={`${style.userText} ${sidebarOpen ? '' : style.closed}`}>
-            <p className={style.userName}>{profile?.full_name}</p>
+            <p className={style.userName}>{user?.full_name}</p>
             <p className={style.userEmail}>{user?.email}</p>
           </div>
         </button>
