@@ -1,5 +1,11 @@
 'use server';
 import pool from '@/utils/postgres/db';
+import { UserDetails } from './page';
+import fs, { FileHandle } from 'fs/promises';
+import path from 'path';
+import { PathLike } from 'fs';
+
+const uploadDir = path.join(process.cwd(), 'public/avatars');
 
 export interface Update {
   success: boolean;
@@ -74,8 +80,6 @@ async function updateSkills(user_id: string | undefined, skills: string) {
     .map((skill) => allSkills?.find((s) => s.name === skill.trim()));
   const newSkillIds = newSkills.map((skill) => skill?.id);
 
-  console.log(newSkillIds);
-
   const deleteQry = `DELETE FROM user_skillset WHERE user_id = $1;`;
   const deleteValues = [user_id];
   const insertQry = `INSERT INTO user_skillset (user_id, skill_id) SELECT $1, unnest($2::int[]);`;
@@ -97,51 +101,78 @@ async function updateSkills(user_id: string | undefined, skills: string) {
   }
 }
 
-// async function uploadAvatar(avatar: File) {
-//   const user = await supabase.auth.getUser();
+const getCurrentUser = async () => {
+  // TODO: replace with auth user check
+  const currentUserId = 'c17f9dd9-dbe3-4496-856a-1de66321c676';
+  const qry = 'SELECT * FROM users WHERE id = $1';
+  const values = [currentUserId];
 
-//   if (!avatar) {
-//     return { success: false, message: 'Error: No avatar provided' };
-//   }
-//   const fileExt = avatar.name.split('.').pop();
-//   const userId = user.data.user?.id || null; // Use user ID for unique filename
+  try {
+    const { rows } = await pool.query(qry, values);
+    return rows[0];
+  } catch (error) {
+    console.error('Error fetching profile:', error);
+    return null;
+  }
+};
 
-//   if (!userId) {
-//     return { success: false, message: 'Error: User not signed in' };
-//   }
+const ensureAvatarDirectory = async () => {
+  try {
+    await fs.mkdir(uploadDir, { recursive: true });
+  } catch (error) {
+    console.error('Failed to create upload directory:', error);
+  }
+};
 
-//   try {
-//     const { data, error } = await supabase.storage
-//       .from('avatars')
-//       .upload(`${userId}.${fileExt}`, avatar, {
-//         cacheControl: '0',
-//         upsert: true, // Overwrite if avatar already exists
-//         contentType: avatar.type,
-//       });
+const updateUserAvatar = async (avatar: File, user: UserDetails) => {
+  // Create new filename using current user's uuid
+  const fileExt = avatar.name.split('.').pop();
+  const userId = user.id || null; // Use user ID for unique filename
 
-//     if (error) {
-//       console.error('Error uploading avatar:', error);
-//       return { success: false, message: `Error: ${error.message}` };
-//     }
+  if (!userId) {
+    return { success: false, message: 'Error: User not signed in' };
+  }
 
-//     // Update user profile table with avatar URL
-//     const publicUrl = supabase.storage
-//       .from('avatars')
-//       .getPublicUrl(`${userId}.${fileExt}`).data.publicUrl;
-//     await supabase
-//       .from('userprofile')
-//       .update({ avatar_url: publicUrl })
-//       .eq('id', userId);
+  try {
+    // Update user table with avatar URL
+    const qry = `UPDATE users SET avatar_url = $1 WHERE id = $2 RETURNING *`;
+    const values = [`${userId}.${fileExt}`, userId];
+    const { rowCount } = await pool.query(qry, values);
 
-//     return {
-//       success: true,
-//       message: `Public url: ${publicUrl}, Data: ${JSON.stringify(data)}`,
-//     };
-//   } catch (error) {
-//     console.error('Unexpected error:', error);
-//     return { success: false, message: 'Error: An unexpected error occurred.' };
-//   }
-// }
+    if (rowCount === 0) {
+      return { success: false, message: 'Error: User not found' };
+    }
+
+    const filePath = path.join(uploadDir, `${userId}.${fileExt}`);
+
+    return filePath;
+  } catch (error) {
+    console.error('Unexpected error:', error);
+    return null;
+  }
+};
+
+async function uploadAvatar(avatar: File) {
+  // Get current user
+  const user: UserDetails = await getCurrentUser();
+
+  if (!avatar) {
+    return { success: false, message: 'Error: No avatar provided' };
+  }
+  // TODO: use a CDN or similar to store the files
+
+  await ensureAvatarDirectory();
+  const filePath = await updateUserAvatar(avatar, user);
+
+  try {
+    const buffer = Buffer.from(await avatar.arrayBuffer());
+    await fs.writeFile(filePath as PathLike | FileHandle, buffer);
+    return { success: true, message: 'Avatar uploaded successfully' };
+  } catch (error) {
+    console.error('Error uploading avatar:', error);
+    return { success: false, message: 'Error uploading avatar' };
+  }
+}
 
 export async function updateAccount(
   prevState: Update,
@@ -150,15 +181,15 @@ export async function updateAccount(
   // TODO: replace with auth user check
   const user_id = `c17f9dd9-dbe3-4496-856a-1de66321c676`;
 
-  // const avatar = (formData.get('avatar') as File) || null;
+  const avatar = (formData.get('avatar') as File) || null;
 
-  // if (avatar) {
-  //   try {
-  //     await uploadAvatar(avatar);
-  //   } catch (error) {
-  //     console.error('Error uploading avatar:', error);
-  //   }
-  // }
+  if (avatar) {
+    try {
+      await uploadAvatar(avatar);
+    } catch (error) {
+      console.error('Error uploading avatar:', error);
+    }
+  }
 
   const skills = formData.get('skillset') as string;
   if (skills) {

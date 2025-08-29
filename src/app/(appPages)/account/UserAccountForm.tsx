@@ -55,7 +55,7 @@ const UserAccountForm = ({
     useContext(AvatarContext);
 
   useEffect(() => {
-    if (formState) {
+    if (formState?.message) {
       console.log(formState.message);
     }
     if (formState.success) setIsDirty(false);

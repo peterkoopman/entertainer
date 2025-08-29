@@ -57,7 +57,6 @@ export function useUser(): UseUserResult {
       if (currentUser) {
         try {
           const user = await fetchProfile(currentUser.id);
-          console.log(user);
           setUser(user);
         } catch (error) {
           console.error('Error fetching user:', error);
