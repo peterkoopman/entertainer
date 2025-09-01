@@ -8,12 +8,11 @@ import {
   getCountries,
   type Client,
   type Booking,
-  type Country,
 } from './actions';
 
 import { redirect } from 'next/navigation';
 import pool from '@/utils/postgres/db';
-import { mockDeep } from 'jest-mock-extended';
+// import { mockDeep } from 'jest-mock-extended';
 
 // Mock the redirect function from next/navigation
 jest.mock('next/navigation', () => ({

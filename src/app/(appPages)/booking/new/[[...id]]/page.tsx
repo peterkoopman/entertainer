@@ -26,9 +26,7 @@ export default async function BookingPage({
   const types = await getTypes();
   const taxTypes = await getTaxTypes();
 
-  const clientResult: RequestResult<Client> | null = await getClient(
-    Number(id)
-  );
+  const clientResult: RequestResult<Client> = await getClient(Number(id));
   const client = clientResult.success ? clientResult.data : null;
 
   return client ? (

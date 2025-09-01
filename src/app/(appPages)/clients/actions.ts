@@ -30,10 +30,9 @@ export interface Country {
   label: string;
 }
 
-export type RequestResult<T> =
-  | { success: true; data: T }
-  | { success: true; data: null }
-  | { success: false; message: string };
+type RequestResultSuccess<T> = { success: true; data: T | null };
+type RequestResultFailure = { success: false; message: string };
+export type RequestResult<T> = RequestResultSuccess<T> | RequestResultFailure;
 
 export type SaveResult = { success: boolean; message: string };
 
@@ -42,7 +41,7 @@ export async function getClient(id: number | undefined) {
     return {
       success: false,
       message: 'No client ID provided.',
-    };
+    } as RequestResult<Client>;
   }
 
   const qry = 'SELECT * FROM client WHERE id = $1';
@@ -55,25 +54,20 @@ export async function getClient(id: number | undefined) {
       return {
         success: true,
         data: null,
-      };
+      } as RequestResult<Client>;
     } else {
       return {
         success: true,
         data: rows[0],
-      };
+      } as RequestResult<Client>;
     }
-
-    return {
-      success: true,
-      data: rows[0],
-    };
   } catch (error) {
     console.error('Failed to fetch client:', error);
 
     return {
       success: false,
       message: `Error fetching client: ${error}`,
-    };
+    } as RequestResult<Client>;
   }
 }
 

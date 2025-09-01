@@ -31,7 +31,6 @@ const SkillSelect = ({
   );
   // Load all available skills for the skillset select field
   useEffect(() => {
-    console.log(selectedSkillNames);
     const loadSkills = async () => {
       const data = await fetchAllSkills();
       setAvailableSkills(data || []);

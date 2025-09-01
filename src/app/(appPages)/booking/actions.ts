@@ -3,10 +3,9 @@
 import { redirect } from 'next/navigation';
 import pool from '@/utils/postgres/db';
 
-export type BookingResult =
-  | { success: true; data?: Booking }
-  | { success: true; data?: null }
-  | { success: false; message: string };
+type BookingResultTrue = { success: true; data: Booking | null };
+type BookingResultFalse = { success: false; message: string };
+export type BookingResult = BookingResultTrue | BookingResultFalse;
 
 export type UpdateResult = { success: boolean; message: string };
 export interface Booking {
@@ -33,7 +32,11 @@ export interface Booking {
 }
 
 export async function getBooking(id: number | undefined) {
-  if (!id) return null;
+  if (!id)
+    return {
+      success: false,
+      message: 'No booking ID provided.',
+    } as BookingResult;
 
   const qry = `SELECT *, c.name AS client_name, c.company AS client_company 
                 FROM booking b LEFT JOIN client c 
@@ -54,7 +57,7 @@ export async function getBooking(id: number | undefined) {
     return {
       success: true,
       data: rows[0],
-    };
+    } as BookingResult;
   } catch (error) {
     console.error('Error fetching booking:', error);
     return {

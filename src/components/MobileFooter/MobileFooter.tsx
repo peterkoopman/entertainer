@@ -16,7 +16,7 @@ const MobileFooter = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const { avatarPreview } = useContext(AvatarContext);
-  const { profile } = useUser();
+  const { user } = useUser();
 
   const pathname = usePathname();
   useEffect(() => {
@@ -39,7 +39,7 @@ const MobileFooter = () => {
       <Avatar
         src={avatarPreview || ''}
         onClick={() => setShowPopup(!showPopup)}
-        alt={profile?.full_name}
+        alt={user?.full_name}
       />
       <div className={style.homeLink}>
         <Link href="/dashboard">

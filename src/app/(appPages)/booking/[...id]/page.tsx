@@ -18,7 +18,7 @@ export default async function BookingPage({
   params: Promise<{ id?: string }>;
 }) {
   const { id } = await params;
-  const result: BookingResult | null = await getBooking(Number(id));
+  const result: BookingResult = await getBooking(Number(id));
   let booking: Booking | null | undefined = null;
 
   if (result && result.success) booking = result.data;

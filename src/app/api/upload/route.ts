@@ -1,48 +1,63 @@
 import { NextResponse } from 'next/server';
-import formidable, { Fields } from 'formidable';
+import formidable, { Fields, File } from 'formidable';
 import fs from 'fs';
 import path from 'path';
+import { IncomingMessage } from 'http';
 
 export const config = {
   api: {
     bodyParser: false,
   },
 };
-// Promisify formidable's parse method
-const parseForm = (req: Request) => {
-  return new Promise((resolve, reject) => {
-    const form = formidable({
-      uploadDir: path.join(process.cwd(), 'public/uploads'),
-      keepExtensions: true,
-      // You may need to adjust other options here
-    });
 
-    // Pass the request body stream to formidable
-    form.parse(req as any, (err, fields, files) => {
-      if (err) {
-        return reject(err);
-      }
-      resolve({ fields, files });
-    });
+export async function POST(req: Request) {
+  const form = formidable({
+    uploadDir: path.join(process.cwd(), '/public/uploads'),
+    keepExtensions: true,
   });
-};
 
-export async function POST(request: Request) {
   try {
-    const { fields, files } = await parseForm(request);
+    const [, files] = await new Promise<[Fields, formidable.Files]>(
+      (resolve, reject) => {
+        form.parse(req as unknown as IncomingMessage, (err, fields, files) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+          resolve([fields, files]);
+        });
+      }
+    );
 
-    const avatar = (files?.avatar as File[] | undefined)?.[0];
-
-    if (!avatar) {
+    // Type casting to ensure `image` is an array of `File`
+    const uploadedFile = (files.image as File[])[0];
+    // Check for a valid file
+    if (!uploadedFile) {
       return NextResponse.json(
         { message: 'No file uploaded.' },
         { status: 400 }
       );
     }
-    console.log(avatar);
-    const oldPath = avatar.filepath;
-    const newPath = path.join(formi.options.uploadDir, avatar.newFilename);
-    fs.renameSync(oldPath, newPath);
+    console.log('File name:', uploadedFile.originalFilename);
+
+    if (!uploadedFile.originalFilename) {
+      return NextResponse.json(
+        { message: 'Invalid file name.' },
+        { status: 400 }
+      );
+    }
+
+    const newPath = path.join(
+      process.cwd(),
+      'public/uploads',
+      uploadedFile.originalFilename
+    );
+    fs.renameSync(uploadedFile.filepath, newPath);
+
+    return NextResponse.json({
+      message: 'File uploaded successfully!',
+      filePath: `/uploads/${uploadedFile.originalFilename}`,
+    });
   } catch (error) {
     console.error('Error uploading file:', error);
     return NextResponse.json(

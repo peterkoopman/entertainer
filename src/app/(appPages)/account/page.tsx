@@ -10,7 +10,7 @@ import { fetchSkills } from './actions';
 import UserAccountForm from './UserAccountForm';
 
 export interface UserDetails {
-  id: string;
+  id?: string;
   full_name?: string;
   company?: string;
   email?: string;
